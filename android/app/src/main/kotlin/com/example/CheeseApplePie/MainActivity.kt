@@ -1,0 +1,6 @@
+package com.example.CheeseApplePie
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity: FlutterActivity() {
+}
