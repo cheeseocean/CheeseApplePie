@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:cheese_flutter/common/notifiers.dart';
 import 'package:cheese_flutter/common/page.dart';
+import 'package:cheese_flutter/models/commentList.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/adapter.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
@@ -28,7 +29,7 @@ class Cheese {
   static CookieManager cookieManager;
 
   static Dio dio = new Dio(BaseOptions(
-    baseUrl: 'http://192.168.1.13:8080/cheese',
+    baseUrl: Global.BASE_URL,
     headers: {
       HttpHeaders.acceptHeader: "application/json",
     },
@@ -128,8 +129,8 @@ class Cheese {
   static Future<Result> addReview(int postId, String content,
       {int parentId}) async {
     var reviewJson = {"content": content, "parentId": parentId};
-    Response response = await dio.post("/posts/$postId/comments",
-        data: reviewJson, options: Options(contentType: "multipart/mixed"));
+    Response response =
+        await dio.post("/posts/$postId/comments/", data: reviewJson);
     return Result.fromJson(response.data);
   }
 
@@ -142,5 +143,16 @@ class Cheese {
       {PageParameter page}) async {
     Response response = await dio.get("/categories/$category/posts");
     return BubbleList.fromJson(response.data);
+  }
+
+  static Future<CommentList> getCommentListOfBubble(num postId,
+      {String level, num commentedId, PageParameter page}) async {
+    String _level = level?? "first";
+    if(_level == "second")
+    {
+      assert(commentedId != null);
+    }
+    Response response = await dio.get("/posts/$postId/comments", queryParameters: {"level": "$level", "commented_id":"$commentedId"});
+    return CommentList.fromJson(response.data);
   }
 }

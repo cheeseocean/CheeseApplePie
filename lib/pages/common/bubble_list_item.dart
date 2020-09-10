@@ -2,9 +2,9 @@ import 'package:cheese_flutter/models/index.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-class BubbleItem extends StatelessWidget {
+class BubbleListItem extends StatelessWidget {
   final Bubble bubble;
-  BubbleItem({this.bubble});
+  BubbleListItem({this.bubble});
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +18,7 @@ class BubbleItem extends StatelessWidget {
         child: InkWell(
           focusColor: Colors.yellow,
           onTap: () {
-            print("tap ");
+            print("tap bubble");
             // showDialog(context: context);
           },
           child: Column(

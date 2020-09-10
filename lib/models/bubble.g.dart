@@ -17,7 +17,8 @@ Bubble _$BubbleFromJson(Map<String, dynamic> json) {
     ..categoryName = json['category_name'] as String
     ..startCount = json['star_count'] as int
     ..commentCount = json['comment_count'] as int
-    ..images = (json['images'] as List)?.map((e) => e as String)?.toList();
+    ..images = (json['images'] as List)?.map((e) => e as String)?.toList()
+    ..commentUrl = json['comment_url'] as String;
 }
 
 Map<String, dynamic> _$BubbleToJson(Bubble instance) => <String, dynamic>{
@@ -31,4 +32,5 @@ Map<String, dynamic> _$BubbleToJson(Bubble instance) => <String, dynamic>{
       'star_count': instance.startCount,
       'comment_count': instance.commentCount,
       'images': instance.images,
+      'comment_url': instance.commentUrl,
     };

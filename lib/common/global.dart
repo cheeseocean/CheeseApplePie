@@ -16,6 +16,8 @@ const _themes = <MaterialColor>[
 ];
 
 class Global {
+
+  static const String BASE_URL = 'http://192.168.1.105:8080/cheese';
   static SharedPreferences _prefs;
 
   static Profile profile = Profile();

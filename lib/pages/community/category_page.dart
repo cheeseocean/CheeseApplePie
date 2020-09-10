@@ -1,7 +1,8 @@
 import 'package:cheese_flutter/api/cheese.dart';
+import 'package:cheese_flutter/common/global.dart';
 import 'package:cheese_flutter/common/page.dart';
 import 'package:cheese_flutter/models/index.dart';
-import 'package:cheese_flutter/pages/common/bubble_item.dart';
+import 'package:cheese_flutter/pages/common/bubble_list_item.dart';
 import 'package:cheese_flutter/widgets/open_container.dart';
 import 'package:cheese_flutter/pages/common/publish_bubble_page.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ class CategoryPage extends StatefulWidget {
 
 class _CategoryPageState extends State<CategoryPage> {
   final toolbarHeight = 76.0;
-  List<Bubble> _bubbleList = List<Bubble>();
+  List<Bubble> _bubbleList = <Bubble>[];
 
   @override
   void initState() {
@@ -89,7 +90,7 @@ class _CategoryPageState extends State<CategoryPage> {
                     fit: StackFit.expand,
                     children: [
                       Image.network(
-                          "http://192.168.1.13/assets/images/bubble/test.jpg"),
+                          "${Global.BASE_URL}/images/bubble/test.jpg"),
                       Container(
                         color: Colors.yellow,
                       )
@@ -147,6 +148,6 @@ class _CategoryPageState extends State<CategoryPage> {
   }
 
   Widget getItem(Bubble bubble) {
-    return BubbleItem(bubble: bubble);
+    return BubbleListItem(bubble: bubble);
   }
 }

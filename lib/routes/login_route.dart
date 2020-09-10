@@ -184,19 +184,7 @@ class _LoginState extends State<LoginRoute> {
                   key: _loginKey,
                   child: Column(
                     children: [
-                      Hero(
-                        tag: "LOGO",
-                        child: Material(
-                          color: Colors.transparent,
-                          child: Text(
-                            "学在南理",
-                            style: TextStyle(
-                                fontFamily: "LiuJianMa",
-                                fontSize: 50.0,
-                                color: Colors.amber),
-                          ),
-                        ),
-                      ),
+                      topLogo,
                       TextFormField(
                         autofocus: false,
                         focusNode: usernameNode,

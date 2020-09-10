@@ -1,13 +1,13 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'categoryList.dart';
+part of 'commentList.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-CategoryList _$CategoryListFromJson(Map<String, dynamic> json) {
-  return CategoryList()
+CommentList _$CommentListFromJson(Map<String, dynamic> json) {
+  return CommentList()
     ..last = json['last'] as bool
     ..totalPages = json['totalPages'] as int
     ..totalElements = json['totalElements'] as int
@@ -18,13 +18,13 @@ CategoryList _$CategoryListFromJson(Map<String, dynamic> json) {
     ..pageable = json['pageable'] == null
         ? null
         : Pageable.fromJson(json['pageable'] as Map<String, dynamic>)
-    ..content = (json['content'] as List)
+    ..comments = (json['comments'] as List)
         ?.map((e) =>
-            e == null ? null : Category.fromJson(e as Map<String, dynamic>))
+            e == null ? null : Comment.fromJson(e as Map<String, dynamic>))
         ?.toList();
 }
 
-Map<String, dynamic> _$CategoryListToJson(CategoryList instance) =>
+Map<String, dynamic> _$CommentListToJson(CommentList instance) =>
     <String, dynamic>{
       'last': instance.last,
       'totalPages': instance.totalPages,
@@ -33,6 +33,6 @@ Map<String, dynamic> _$CategoryListToJson(CategoryList instance) =>
       'size': instance.size,
       'number': instance.number,
       'empty': instance.empty,
-      'pageable': instance.pageable,
-      'content': instance.content,
+      'pageable': instance.pageable?.toJson(),
+      'comments': instance.comments?.map((e) => e?.toJson())?.toList(),
     };
