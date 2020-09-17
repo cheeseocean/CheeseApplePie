@@ -10,7 +10,7 @@ class Profile {
 
   User user;
   String token;
-  int theme;
+  String theme;
   CacheConfig cache;
   String lastLogin;
   String locale;

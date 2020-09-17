@@ -12,7 +12,7 @@ Profile _$ProfileFromJson(Map<String, dynamic> json) {
         ? null
         : User.fromJson(json['user'] as Map<String, dynamic>)
     ..token = json['token'] as String
-    ..theme = json['theme'] as int
+    ..theme = json['theme'] as String
     ..cache = json['cache'] == null
         ? null
         : CacheConfig.fromJson(json['cache'] as Map<String, dynamic>)

@@ -1,5 +1,5 @@
-import 'package:cheese_flutter/common/notifiers.dart';
-import 'package:cheese_flutter/pages/container_route.dart';
+import 'package:cheese_flutter/provider/providers.dart';
+import 'package:cheese_flutter/routes/login/page/container_page.dart';
 import 'package:cheese_flutter/splash_page.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -8,9 +8,12 @@ import 'package:oktoast/oktoast.dart';
 import 'package:provider/provider.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'common/global.dart';
-import 'routes/login_route.dart';
-import 'routes/register_route.dart';
+import 'routes/login/page/login_page.dart';
+import 'routes/login/page/register_page.dart';
 import 'package:flutter/scheduler.dart';
+
+import 'routes/not_found_page.dart';
+import 'routes/routers.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +23,6 @@ void main() {
   // runApp(MyApp());
   print("runMyApp");
   if (Platform.isAndroid) {
-    timeDilation = 2.0;
     //设置Android头部的导航栏透明
     SystemUiOverlayStyle systemUiOverlayStyle =
         SystemUiOverlayStyle(statusBarColor: Colors.transparent);
@@ -30,44 +32,51 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+
+  final Widget home;
+  final ThemeData theme;
+
+  MyApp({this.home, this.theme});
   @override
   Widget build(BuildContext context) {
     print("MyApp build");
-    return MultiProvider(
-        providers: [
-          ChangeNotifierProvider.value(value: UserModel()),
-          ChangeNotifierProvider.value(value: ThemeModel())
-        ],
-        child: Consumer<ThemeModel>(builder: (context, themeModel, child) {
-          return OKToast(
-            child: MaterialApp(
-              theme: ThemeData.from(
-                colorScheme: const ColorScheme.light(),
-              ).copyWith(
-                pageTransitionsTheme: const PageTransitionsTheme(
-                  builders: <TargetPlatform, PageTransitionsBuilder>{
-                    TargetPlatform.android: ZoomPageTransitionsBuilder(),
-                  },
-                ),
-              ),
-              home: const SplashPage(),
-              routes: {
-                "login": (context) => LoginRoute(),
-                "register": (context) => RegisterRoute(),
-                "container": (context) => ContainerPage()
-              },
-              builder: (BuildContext c, Widget w) {
-                return ScrollConfiguration(
-                  behavior: const NoGlowScrollBehavior(),
-                  child: w,
+    return OKToast(
+        child: MultiProvider(
+          providers: [
+            ChangeNotifierProvider.value(value: UserProvider()),
+            ChangeNotifierProvider.value(value: ThemeProvider())
+          ],
+          child: Consumer<ThemeProvider>(
+            builder: (context, provider, child) {
+              return MaterialApp(
+                theme: theme ?? provider.getTheme(),
+                darkTheme: provider.getTheme(isDarkMode: true),
+                themeMode: provider.getThemeMode(),
+                home: const SplashPage(),
+                //注册fluro Router
+                onGenerateRoute: Routers.router.generator,
+                builder: (BuildContext c, Widget w) {
+                  return ScrollConfiguration(
+                    behavior: const NoGlowScrollBehavior(),
+                    child: w,
+                  );
+                },
+                onUnknownRoute: (_) {
+                return MaterialPageRoute(
+                  builder: (BuildContext context) => NotFoundPage(),
                 );
               },
-            ),
-          );
-        }));
+              );
+            },
+          ),
+        ),
+        backgroundColor: Colors.black54,
+        textPadding:
+            const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
+        radius: 20.0,
+        position: ToastPosition.bottom);
   }
 
-  
   // return MaterialApp(
   //   home: ContainerPage(),
   // );

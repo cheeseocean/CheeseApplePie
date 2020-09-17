@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:cheese_flutter/common/notifiers.dart';
-import 'package:cheese_flutter/common/page.dart';
+import 'package:cheese_flutter/provider/providers.dart';
+import 'package:cheese_flutter/common/page_parameter.dart';
 import 'package:cheese_flutter/models/commentList.dart';
 import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/adapter.dart';
@@ -29,7 +29,7 @@ class Cheese {
   static CookieManager cookieManager;
 
   static Dio dio = new Dio(BaseOptions(
-    baseUrl: Global.BASE_URL,
+    baseUrl: Global.API_BASE_URL,
     headers: {
       HttpHeaders.acceptHeader: "application/json",
     },
@@ -139,20 +139,25 @@ class Cheese {
     return CategoryList.fromJson(response.data);
   }
 
-  static Future<BubbleList> getBubbleListOfCategory(String category,
-      {PageParameter page}) async {
-    Response response = await dio.get("/categories/$category/posts");
+  static Future<BubbleList> getBubbleList(String requestResUrl,
+      {PageParameter pageParameter}) async {
+    print(pageParameter.toMap());
+    Response response = await dio.get(requestResUrl, queryParameters: pageParameter.toMap());
     return BubbleList.fromJson(response.data);
   }
 
   static Future<CommentList> getCommentListOfBubble(num postId,
-      {String level, num commentedId, PageParameter page}) async {
-    String _level = level?? "first";
-    if(_level == "second")
-    {
+      {String level, num commentedId, PageParameter pageParameter}) async {
+    String _level = level ?? "first";
+    Map<String, String> queryParams = {"level": _level};
+    if (_level == "second") {
       assert(commentedId != null);
-    }
-    Response response = await dio.get("/posts/$postId/comments", queryParameters: {"level": "$level", "commented_id":"$commentedId"});
+      queryParams["commented_id"] = "$commentedId";
+    } else
+      queryParams["commented_id"] = "0";
+    print(queryParams);
+    Response response =
+        await dio.get("/posts/$postId/comments", queryParameters: queryParams );
     return CommentList.fromJson(response.data);
   }
 }
