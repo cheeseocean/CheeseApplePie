@@ -10,7 +10,7 @@ part 'commentList.g.dart';
 @JsonSerializable(explicitToJson: true)
 class CommentList extends PageableData{
 
-  List<Comment> comments;
+  List<Comment> content;
 
   CommentList();
 

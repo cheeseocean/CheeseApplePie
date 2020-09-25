@@ -29,14 +29,12 @@ class _CommunityPageState extends State<CommunityPage> {
       print(categoryList.toJson());
       _categoryList = categoryList;
       setState(() {});
-    }).catchError((error) {
-      print(error);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    print("CommunityPageState build");
+    // print("CommunityPageState build");
     return _buildWidget();
   }
 
@@ -47,10 +45,9 @@ class _CommunityPageState extends State<CommunityPage> {
         child: ListView(children: [
           Container(
             child: AppBar(
-                backgroundColor: Colors.white,
+                title: Text("社区"),
                 toolbarHeight: toolbarHeight,
-                brightness: Brightness.light,
-                elevation: 0.0,
+                // elevation: 0.0,
                 actions: [
                   // IconButton(
                   //   padding: EdgeInsets.only(top: 26),
@@ -77,11 +74,17 @@ class _CommunityPageState extends State<CommunityPage> {
               // control: new SwiperControl(),//如果不填则不显示左右按钮
             ),
           ),
-          ListTile(title: Text("Offical", style: TextStyle(color: Colors.amber, fontSize: 19.0, fontFamily: 'Chocolate'),)),
+          ListTile(
+              title: Text(
+            "Offical",
+            style: TextStyle(
+                color: Colors.amber, fontSize: 19.0, fontFamily: 'Chocolate'),
+          )),
           // Container(
           //   height: 200,
           GridView.builder(
-            shrinkWrap: true, //当内部Grid不能滑动时需配置此选项
+            shrinkWrap: true,
+            //当内部Grid不能滑动时需配置此选项
             physics: NeverScrollableScrollPhysics(),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2, childAspectRatio: 2.0),
@@ -97,7 +100,8 @@ class _CommunityPageState extends State<CommunityPage> {
                   child: InkWell(
                     focusColor: Colors.yellow,
                     onTap: () {
-                      NavigatorUtils.push(context, "/community/categories/${_categoryList.content[index].categoryName}");
+                      NavigatorUtils.push(context,
+                          "/community/categories/${_categoryList.content[index].categoryName}");
                     },
                     child: Text(
                       _categoryList.content[index].categoryName,
@@ -122,6 +126,7 @@ class MyCupertinoPageRoute<T> extends CupertinoPageRoute<T> {
             builder: builder,
             settings: settings,
             fullscreenDialog: fullscreenDialog);
+
   @override
   Duration get transitionDuration => const Duration(milliseconds: 500);
 }

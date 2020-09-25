@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart' as widgets;
 import 'community/community_router.dart';
 import 'i_router.dart';
 import 'login/login_router.dart';
+import 'mine/mine_router.dart';
 import 'not_found_page.dart';
 
 class Routers {
@@ -40,6 +41,7 @@ class Routers {
 
     _listRouter.add(LoginRouter());
     _listRouter.add(CommunityRouter());
+    _listRouter.add(MineRouter());
 
     /// 初始化路由
     _listRouter.forEach((routerProvider) {

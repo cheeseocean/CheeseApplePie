@@ -1,13 +1,11 @@
 import 'dart:collection';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:cheese_flutter/api/cheese.dart';
 import 'package:cheese_flutter/common/global.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:http_parser/http_parser.dart';
@@ -17,7 +15,9 @@ const Color themeColor = Color(0xff00bc56);
 
 class PublishBubblePage extends StatefulWidget {
   final String fromCategory;
+
   PublishBubblePage({this.fromCategory});
+
   @override
   State<StatefulWidget> createState() {
     return _PublishBubblePageState();
@@ -64,7 +64,7 @@ class _PublishBubblePageState extends State<PublishBubblePage> {
         Future.delayed(Duration(seconds: 1), () {
           Navigator.pop(context);
         });
-      }).catchError((err) => print(err.toString()));
+      });
     });
   }
 
@@ -86,8 +86,8 @@ class _PublishBubblePageState extends State<PublishBubblePage> {
   }
 
   String _buildImageName(int index) {
-    num timastamp = DateTime.now().millisecondsSinceEpoch;
-    return "${Global.profile.user.username}_bubble_${timastamp}_$index.jpg";
+    num timestamp = DateTime.now().millisecondsSinceEpoch;
+    return "${Global.profile.user.username}_bubble_${timestamp}_$index.jpg";
   }
 
   ThemeData get currentTheme => context.themeData;
@@ -211,14 +211,19 @@ class _PublishBubblePageState extends State<PublishBubblePage> {
         maxLines: 7,
       );
 
-  Widget get publishButton => IconButton(
-      onPressed: _publishBubble,
-      icon: SvgPicture.asset(
-        "assets/svgs/ic_publish.svg",
-        width: 24,
-        height: 24,
-      )
-      // label: Text("hello"),
+  Widget get publishButton => Padding(
+        padding: EdgeInsets.only(right: 10.0),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: InkWell(
+              onTap: _publishBubble,
+              child: Text(
+                "发布",
+                style: TextStyle(fontSize: 16.0, color: Colors.blue[400]),
+              )
+              // label: Text("hello"),
+              ),
+        ),
       );
 
   Widget _imageAssetWidget(AssetEntity asset) {
@@ -253,22 +258,9 @@ class _PublishBubblePageState extends State<PublishBubblePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFEDEDED),
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-        brightness: Brightness.light,
-        backgroundColor: Colors.white,
-        leading: IconButton(
-          icon: SvgPicture.asset(
-            "assets/svgs/ic_back.svg",
-            width: 24,
-            height: 24,
-          ),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        elevation: 0.0,
+
         actions: [
           publishButton,
         ],
@@ -276,9 +268,6 @@ class _PublishBubblePageState extends State<PublishBubblePage> {
       body: Container(
         // height: 600,
         padding: EdgeInsets.only(left: 20, right: 20, top: 20),
-        decoration: BoxDecoration(
-            // color: Colors.white
-            ),
         child: Column(
           children: [
             contentEditor,

@@ -14,7 +14,7 @@ class Comment{
   @JsonKey(name: "created_at")
   String createdAt;
   String content;
-  @JsonKey(name: "parent_id")
+  @JsonKey(name: "parent_nickname")
   num parentId;
   @JsonKey(name: "sub_comment_count")
   num subCommentCount;

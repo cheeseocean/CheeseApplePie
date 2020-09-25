@@ -30,16 +30,13 @@ class _CategoryPageState extends State<CategoryPage> {
   @override
   void initState() {
     super.initState();
-    
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Color(0xFAEFEFEA),
+        backgroundColor: Theme.of(context).primaryColorLight,
         floatingActionButton: OpenContainer(
-          openColor: Colors.red,
-          // openElevation: 4.0,
           transitionType: ContainerTransitionType.fade,
           openBuilder: (context, _) {
             return PublishBubblePage(fromCategory: widget.categoryName);
@@ -58,51 +55,33 @@ class _CategoryPageState extends State<CategoryPage> {
               child: Center(
                 child: Icon(
                   Icons.add,
-                  color: Theme.of(context).colorScheme.onSecondary,
                 ),
               ),
             );
           },
         ),
         body: NestedScrollView(
-          headerSliverBuilder: (context, innerBoxIsScrolled) {
-            return [
-              SliverAppBar(
-                brightness: Brightness.light,
-                actions: [],
-                leading: IconButton(
-                  color: Colors.black,
-                  icon: Icon(Icons.arrow_back_ios),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                flexibleSpace: FlexibleSpaceBar(
-                  background: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      // Image.network(
-                      //     "${Global.BASE_URL}/images/bubble/test.jpg"),
-                      Container(
-                        color: Colors.yellow,
-                      )
-                    ],
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return [
+                SliverAppBar(
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        Container(
+                          color: Colors.yellow,
+                        )
+                      ],
+                    ),
                   ),
-                ),
-                // bottom: PreferredSize(
-                //     child: Text("hello"), preferredSize: Size.fromHeight(40)),
-                pinned: true,
-                backgroundColor: Color(0xFFFFFFFE),
-                expandedHeight: 200,
-                centerTitle: true,
-                title: Text("板块", style: TextStyle(color: Colors.black)),
-                forceElevated: innerBoxIsScrolled,
-              )
-            ];
-          },
-          body: BubbleListWidget(requestResUrl: "/categories/${widget.categoryName}/posts")
-        ));
+                  pinned: true,
+                  expandedHeight: 200,
+                  title: Text(widget.categoryName),
+                  forceElevated: innerBoxIsScrolled,
+                )
+              ];
+            },
+            body: BubbleListWidget(
+                requestResUrl: "/categories/${widget.categoryName}/posts")));
   }
-
-
 }

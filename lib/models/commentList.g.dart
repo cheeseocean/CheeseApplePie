@@ -18,7 +18,7 @@ CommentList _$CommentListFromJson(Map<String, dynamic> json) {
     ..pageable = json['pageable'] == null
         ? null
         : Pageable.fromJson(json['pageable'] as Map<String, dynamic>)
-    ..comments = (json['comments'] as List)
+    ..content = (json['content'] as List)
         ?.map((e) =>
             e == null ? null : Comment.fromJson(e as Map<String, dynamic>))
         ?.toList();
@@ -34,5 +34,5 @@ Map<String, dynamic> _$CommentListToJson(CommentList instance) =>
       'number': instance.number,
       'empty': instance.empty,
       'pageable': instance.pageable?.toJson(),
-      'comments': instance.comments?.map((e) => e?.toJson())?.toList(),
+      'comments': instance.content?.map((e) => e?.toJson())?.toList(),
     };

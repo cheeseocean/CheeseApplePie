@@ -1,4 +1,5 @@
 import 'package:cheese_flutter/routes/routers.dart';
+import 'package:cheese_flutter/utils/log_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/screenutil.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,7 +20,7 @@ const _themes = <MaterialColor>[
 class Global {
 
   static const String API_BASE_URL = 'http://api.cheese.beer';
-  static const String STATIC_BASE_URL = 'http://static.cheese.beer';
+  // static const String STATIC_BASE_URL = 'http://static.cheese.beer';
   static SharedPreferences _prefs;
 
   static Profile profile = Profile();
@@ -28,7 +29,7 @@ class Global {
 
   static Future init() async {
     _prefs = await SharedPreferences.getInstance();
-    _prefs.clear();
+    // _prefs.clear();
     var _profile = _prefs.getString("profile");
     if (_profile != null) {
       try {
@@ -41,7 +42,8 @@ class Global {
       ..enable = true
       ..maxAge = 3600
       ..maxCount = 100;
-    
+
+    Log.init();
     Cheese.init();
     Routers.init();
   }

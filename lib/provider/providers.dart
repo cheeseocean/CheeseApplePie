@@ -71,10 +71,12 @@ class ThemeProvider extends ProfileChangeNotifier {
 
   ThemeData getTheme({bool isDarkMode = false}) {
     return ThemeData(
+      backgroundColor: isDarkMode ? Colours.dark_bg_gray : Colors.white,
       errorColor: isDarkMode ? Colours.dark_red : Colours.red,
       brightness: isDarkMode ? Brightness.dark : Brightness.light,
       primaryColor: isDarkMode ? Colours.dark_app_main : Colours.app_main,
-      // primaryColorLight: Colours.dark_material_bg,
+      primaryColorLight:
+          isDarkMode ? Colours.dark_material_bg : Colors.grey[200],
       //CircleAvatar使用
       primaryColorDark: isDarkMode ? Colours.dark_material_bg : Colours.bg_gray,
       accentColor: isDarkMode ? Colours.dark_app_main : Colours.app_main,
@@ -82,7 +84,7 @@ class ThemeProvider extends ProfileChangeNotifier {
       indicatorColor: isDarkMode ? Colours.dark_app_main : Colours.app_main,
       // 页面背景色
       scaffoldBackgroundColor:
-          isDarkMode ? Colours.dark_bg_color : Colors.white,
+          isDarkMode ? Colours.dark_bg_gray : Colors.white,
       // 主要用于Material背景色
       canvasColor: isDarkMode ? Colours.dark_material_bg : Colors.white,
       // 文字选择色（输入框复制粘贴菜单）
@@ -120,7 +122,7 @@ class ThemeProvider extends ProfileChangeNotifier {
             borderSide: BorderSide(color: Colors.red)),
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
-            borderSide: BorderSide(width: 0.5, color: Colors.blue)),
+            borderSide: BorderSide.none),
         enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(10.0)),
             borderSide: BorderSide(style: BorderStyle.none)),
@@ -136,10 +138,16 @@ class ThemeProvider extends ProfileChangeNotifier {
         textTheme: TextTheme(
             // Center Title的颜色
             // headline6: TextStyle(color: isDarkMode ? Colours.dark_text : Colours.text, fontSize: )
-            headline6: isDarkMode ? TextStyles.textDark : TextStyles.text),
-        color: isDarkMode ? Colours.dark_bg_color : Colors.white,
+            headline6: isDarkMode ? TextStyle(fontSize: 18.0, color: Colours.dark_text) : TextStyle(fontSize: 18.0, color: Colours.text)),
+        color: isDarkMode ? Colours.dark_bg_gray : Colors.white,
         brightness: isDarkMode ? Brightness.dark : Brightness.light,
       ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        // selectedItemColor: Colors.amber,
+          unselectedLabelStyle:
+              isDarkMode ? TextStyles.textDarkGray12 : TextStyles.text,
+          selectedLabelStyle:
+              isDarkMode ? TextStyles.textDarkGray12 : TextStyles.text),
       dividerTheme: DividerThemeData(
           color: isDarkMode ? Colours.dark_line : Colours.line,
           space: 0.6,

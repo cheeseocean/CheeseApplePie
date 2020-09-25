@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:cheese_flutter/common/intercepters.dart';
 import 'package:cheese_flutter/provider/providers.dart';
 import 'package:cheese_flutter/common/page_parameter.dart';
 import 'package:cheese_flutter/models/commentList.dart';
@@ -11,6 +12,7 @@ import 'package:dio/dio.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:http_parser/http_parser.dart';
 
 import '../models/index.dart';
 import '../common/global.dart';
@@ -43,6 +45,7 @@ class Cheese {
     cookieJar = PersistCookieJar(dir: appDocPath + "/.cookies/");
     cookieManager = CookieManager(cookieJar);
     print(appDocPath);
+    dio.interceptors.add(LoggingInterceptor());
     dio.interceptors.add(cookieManager);
 
     // 添加缓存插件
@@ -91,11 +94,8 @@ class Cheese {
         data: loginForm,
         options: Options(contentType: Headers.formUrlEncodedContentType));
     jwtToken = response.headers[HttpHeaders.authorizationHeader][0];
-    //登录成功后更新公共头（authorization），此后的所有请求都会带上用户身份信息
+
     dio.options.headers[HttpHeaders.authorizationHeader] = jwtToken;
-    //清空所有缓存
-    // Global.netCache.cache.clear();
-    //更新profile中的token信息
     Global.profile.token = jwtToken;
 
     return Result.fromJson(response.data);
@@ -122,15 +122,19 @@ class Cheese {
         data: postForm,
         options:
             Options(headers: {Headers.contentTypeHeader: "multipart/mixed"}));
-    print(response.data);
+    // print(response.data);
     return Result.fromJson(response.data);
   }
 
   static Future<Result> addReview(int postId, String content,
       {int parentId}) async {
-    var reviewJson = {"content": content, "parentId": parentId};
+    var reviewJson = {"content": content, "parent_id": parentId};
+    // print("hell${reviewJson.toString()}");
+    FormData reviewForm = FormData.fromMap({
+      "meta-data": MultipartFile.fromString(JsonEncoder().convert(reviewJson), contentType: MediaType.parse("application/json"))
+    });
     Response response =
-        await dio.post("/posts/$postId/comments/", data: reviewJson);
+        await dio.post("/posts/$postId/comments/", data: reviewForm);
     return Result.fromJson(response.data);
   }
 
@@ -160,4 +164,6 @@ class Cheese {
         await dio.get("/posts/$postId/comments", queryParameters: queryParams );
     return CommentList.fromJson(response.data);
   }
+
+
 }

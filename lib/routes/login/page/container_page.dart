@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../home/page/home_page.dart';
 import '../../community/page/community_page.dart';
-import '../../mine/mine_page.dart';
+import '../../mine/page/mine_page.dart';
 import '../../moments/moments_page.dart';
 
 class ContainerPage extends StatefulWidget {
@@ -46,19 +46,6 @@ class _ContainerPageState extends State<ContainerPage> {
     if (pages == null) {
       pages = [HomePage(), MomentsPage(), CommunityPage(), MinePage()];
     }
-    if (itemList == null) {
-      itemList = itemNames
-          .map((item) => BottomNavigationBarItem(
-              icon:
-                  SvgPicture.asset(item.normalIcon, width: 28.0, height: 28.0),
-              label: item.name,
-              activeIcon: SvgPicture.asset(
-                item.activeIcon,
-                width: 32.0,
-                height: 32.0,
-              )))
-          .toList();
-    }
   }
 
   int _selectIndex = 0;
@@ -69,8 +56,9 @@ class _ContainerPageState extends State<ContainerPage> {
           label: item.name,
           activeIcon: SvgPicture.asset(
             item.activeIcon,
-            width: 26.0,
-            height: 26.0,
+            width: 24.0,
+            height: 24.0,
+            // color: Color(0xffc6c9fd),
           )))
       .toList();
 
@@ -104,6 +92,7 @@ class _ContainerPageState extends State<ContainerPage> {
         items: _itemList,
         // showSelectedLabels: false,
         // showUnselectedLabels: false,
+        unselectedFontSize: 12.0,
         onTap: (int index) {
           setState(() {
             _selectIndex = index;
