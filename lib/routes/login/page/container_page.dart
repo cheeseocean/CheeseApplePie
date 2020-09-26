@@ -1,12 +1,13 @@
 import 'dart:ui';
 
+import 'package:cheese_flutter/routes/timetable/page/timetable_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../home/page/home_page.dart';
 import '../../community/page/community_page.dart';
 import '../../mine/page/mine_page.dart';
-import '../../moments/moments_page.dart';
+import '../../timetable/page/timetable_page.dart';
 
 class ContainerPage extends StatefulWidget {
   ContainerPage({Key key}) : super(key: key);
@@ -29,8 +30,8 @@ class _ContainerPageState extends State<ContainerPage> {
   final itemNames = [
     _Item("首页", "assets/svgs/ic_home_normal.svg",
         "assets/svgs/ic_home_active.svg"),
-    _Item("瞬间", "assets/svgs/ic_moments_normal.svg",
-        "assets/svgs/ic_moments_active.svg"),
+    _Item("课表", "assets/svgs/ic_timetable_normal.svg",
+        "assets/svgs/ic_timetable_active.svg"),
     _Item("社区", "assets/svgs/ic_community_normal.svg",
         "assets/svgs/ic_community_active.svg"),
     _Item("我的", "assets/svgs/ic_person_normal.svg",
@@ -44,7 +45,7 @@ class _ContainerPageState extends State<ContainerPage> {
     super.initState();
     print("initState _ContainerPageState");
     if (pages == null) {
-      pages = [HomePage(), MomentsPage(), CommunityPage(), MinePage()];
+      pages = [HomePage(), TimetablePage(), CommunityPage(), MinePage()];
     }
   }
 

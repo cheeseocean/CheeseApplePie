@@ -112,7 +112,9 @@ class ThemeProvider extends ProfileChangeNotifier {
       ),
       // highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
+      cardTheme: CardTheme(margin: EdgeInsets.all(2.0)),
       inputDecorationTheme: InputDecorationTheme(
+        filled: true,
         contentPadding: EdgeInsets.symmetric(horizontal: 10),
         errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
