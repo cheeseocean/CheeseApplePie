@@ -17,7 +17,7 @@ class _SplashPageState extends State<SplashPage> {
   @override
   void initState() {
     super.initState();
-    bool _isLogin = Provider.of<UserProvider>(context, listen: false).isLogin;
+    bool _isLogin = Provider.of<UserModel>(context, listen: false).isLogin;
 
     SchedulerBinding.instance.addPostFrameCallback(
       (Duration _) {

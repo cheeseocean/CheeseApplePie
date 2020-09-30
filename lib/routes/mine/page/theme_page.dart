@@ -14,7 +14,7 @@ class _ThemePageState extends State<ThemePage> {
 
   @override
   Widget build(BuildContext context) {
-    ThemeMode themeMode = Provider.of<ThemeProvider>(context, listen: false).getThemeMode();
+    ThemeMode themeMode = Provider.of<ThemeModel>(context, listen: false).getThemeMode();
     String currentMode;
     switch(themeMode.value){
       case"Dark":
@@ -32,7 +32,7 @@ class _ThemePageState extends State<ThemePage> {
       return InkWell(
         onTap: (){
           ThemeMode themeMode = index == 0 ? ThemeMode.system : (index == 1 ? ThemeMode.dark : ThemeMode.light);
-          context.read<ThemeProvider>().setTheme(themeMode);
+          context.read<ThemeModel>().setTheme(themeMode);
         },
         child:Container(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),

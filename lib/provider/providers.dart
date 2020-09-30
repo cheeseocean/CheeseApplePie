@@ -3,6 +3,7 @@ import 'package:cheese_flutter/res/colors.dart';
 import 'package:cheese_flutter/res/styles.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import '../models/index.dart';
 import 'package:flutter/foundation.dart';
 
@@ -18,7 +19,7 @@ class ProfileChangeNotifier extends ChangeNotifier {
   }
 }
 
-class UserProvider extends ProfileChangeNotifier {
+class UserModel extends ProfileChangeNotifier {
   User get user => _profile.user;
 
   // APP是否登录(如果有用户信息，则证明登录过)
@@ -40,7 +41,7 @@ extension ThemeModeExtension on ThemeMode {
   String get value => ['System', 'Light', 'Dark'][index];
 }
 
-class ThemeProvider extends ProfileChangeNotifier {
+class ThemeModel extends ProfileChangeNotifier {
   // //暂未发现用途
   // void syncTheme() {
   //   final String theme = _profile.theme;
@@ -71,22 +72,22 @@ class ThemeProvider extends ProfileChangeNotifier {
 
   ThemeData getTheme({bool isDarkMode = false}) {
     return ThemeData(
-      backgroundColor: isDarkMode ? Colours.dark_bg_gray : Colors.white,
+      backgroundColor: isDarkMode ? Colours.dark_bg_gray : Colours.bg_gray,
       errorColor: isDarkMode ? Colours.dark_red : Colours.red,
       brightness: isDarkMode ? Brightness.dark : Brightness.light,
       primaryColor: isDarkMode ? Colours.dark_app_main : Colours.app_main,
       primaryColorLight:
-          isDarkMode ? Colours.dark_material_bg : Colors.grey[200],
+          isDarkMode ? Colors.black : Colors.grey[300],
       //CircleAvatar使用
-      primaryColorDark: isDarkMode ? Colours.dark_material_bg : Colours.bg_gray,
+      primaryColorDark: isDarkMode ? Colors.black : Colors.grey[300],
       accentColor: isDarkMode ? Colours.dark_app_main : Colours.app_main,
       // Tab指示器颜色
       indicatorColor: isDarkMode ? Colours.dark_app_main : Colours.app_main,
       // 页面背景色
       scaffoldBackgroundColor:
-          isDarkMode ? Colours.dark_bg_gray : Colors.white,
+          isDarkMode ? Colours.dark_bg_gray : Colours.bg_gray,
       // 主要用于Material背景色
-      canvasColor: isDarkMode ? Colours.dark_material_bg : Colors.white,
+      canvasColor: isDarkMode ? Colours.dark_material_bg : Colours.material_bg,
       // 文字选择色（输入框复制粘贴菜单）
       textSelectionColor: Colours.app_main.withAlpha(70),
       textSelectionHandleColor: Colours.app_main,
@@ -110,9 +111,10 @@ class ThemeProvider extends ProfileChangeNotifier {
         button: isDarkMode ? TextStyles.textDark : TextStyles.text,
         caption: isDarkMode ? TextStyles.textDark : TextStyles.text,
       ),
-      // highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
-      cardTheme: CardTheme(margin: EdgeInsets.all(2.0)),
+      highlightColor: Colors.transparent,
+      buttonTheme: ButtonThemeData(highlightColor: Colors.transparent, splashColor: Colors.transparent),
+      cardTheme: CardTheme(margin: EdgeInsets.all(2.0), elevation: 0.5),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         contentPadding: EdgeInsets.symmetric(horizontal: 10),
@@ -128,7 +130,7 @@ class ThemeProvider extends ProfileChangeNotifier {
         enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(10.0)),
             borderSide: BorderSide(style: BorderStyle.none)),
-        fillColor: isDarkMode ? Colours.dark_material_bg : Colours.bg_gray,
+        fillColor: isDarkMode ? Colors.black: Colors.grey[300],
         hintStyle: isDarkMode ? TextStyles.textDark : TextStyles.textDarkGray14,
       ),
       appBarTheme: AppBarTheme(
@@ -141,7 +143,7 @@ class ThemeProvider extends ProfileChangeNotifier {
             // Center Title的颜色
             // headline6: TextStyle(color: isDarkMode ? Colours.dark_text : Colours.text, fontSize: )
             headline6: isDarkMode ? TextStyle(fontSize: 18.0, color: Colours.dark_text) : TextStyle(fontSize: 18.0, color: Colours.text)),
-        color: isDarkMode ? Colours.dark_bg_gray : Colors.white,
+        color: isDarkMode ? Colours.dark_bg_gray : Colours.bg_gray,
         brightness: isDarkMode ? Brightness.dark : Brightness.light,
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(

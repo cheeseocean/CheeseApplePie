@@ -1,6 +1,8 @@
+import 'package:cheese_flutter/widgets/webview_page.dart';
 import 'package:fluro/fluro.dart';
 
 import 'package:flutter/widgets.dart' as widgets;
+import 'package:webview_flutter/webview_flutter.dart';
 
 import 'community/community_router.dart';
 import 'i_router.dart';
@@ -29,11 +31,11 @@ class Routers {
     //             (BuildContext context, Map<String, List<String>> params) =>
     //                 Home()));
 
-    // router.define(webViewPage, handler: Handler(handlerFunc: (_, params) {
-    //   final String title = params['title']?.first;
-    //   final String url = params['url']?.first;
-    //   return WebViewPage(title: title, url: url);
-    // }));
+    router.define(webViewPage, handler: Handler(handlerFunc: (_, params) {
+      final String title = params['title']?.first;
+      final String url = params['url']?.first;
+      return WebViewPage(title:title ,url: url);
+    }));
 
     _listRouter.clear();
 

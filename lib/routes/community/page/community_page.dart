@@ -4,9 +4,6 @@ import 'package:cheese_flutter/routes/fluro_navigator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_swiper/flutter_swiper.dart';
-
-import 'category_page.dart';
 
 class CommunityPage extends StatefulWidget {
   @override
@@ -39,41 +36,12 @@ class _CommunityPageState extends State<CommunityPage> {
   }
 
   Widget _buildWidget() {
-    return MediaQuery.removePadding(
-        removeTop: true,
-        context: context,
-        child: ListView(children: [
-          Container(
-            child: AppBar(
-                title: Text("社区"),
-                toolbarHeight: toolbarHeight,
-                // elevation: 0.0,
-                actions: [
-                  // IconButton(
-                  //   padding: EdgeInsets.only(top: 26),
-                  //   color: Colors.amber,
-                  //   icon: Icon(Icons.search),
-                  //   onPressed: () {},
-                  // )
-                ]),
-          ),
+    return Scaffold(
+        appBar: AppBar(
+          title: Text("社区"),
+        ),
+        body: ListView(children: [
 
-          Container(
-            height: 150,
-            child: new Swiper(
-              itemBuilder: (BuildContext context, int index) {
-                return Card(
-                  color: Colors.cyan[300],
-                );
-              },
-              itemCount: 5,
-              viewportFraction: 0.8,
-              scale: 0.9,
-              autoplay: true,
-              // pagination: new SwiperPagination(),//如果不填则不显示指示点
-              // control: new SwiperControl(),//如果不填则不显示左右按钮
-            ),
-          ),
           ListTile(
               title: Text(
             "Offical",

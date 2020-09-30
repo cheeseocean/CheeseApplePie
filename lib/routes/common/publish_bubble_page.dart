@@ -215,8 +215,8 @@ class _PublishBubblePageState extends State<PublishBubblePage> {
         padding: EdgeInsets.only(right: 10.0),
         child: Align(
           alignment: Alignment.centerLeft,
-          child: InkWell(
-              onTap: _publishBubble,
+          child: TextButton(
+              onPressed: _publishBubble,
               child: Text(
                 "发布",
                 style: TextStyle(fontSize: 16.0, color: Colors.blue[400]),
@@ -283,7 +283,7 @@ class _PublishBubblePageState extends State<PublishBubblePage> {
                   if (index == _selectedImages) {
                     print(index);
                     return InkWell(
-                      // customBorder: RoundedRectangleBorder(side: BorderSide(style: BorderStyle.solid, color: Colors.grey, width: 1.0)),
+                      customBorder: RoundedRectangleBorder(side: BorderSide(style: BorderStyle.solid, color: Colors.grey, width: 2.0)),
                       onTap: () async {
                         final List<AssetEntity> result =
                             await AssetPicker.pickAssets(context,
@@ -300,7 +300,7 @@ class _PublishBubblePageState extends State<PublishBubblePage> {
                           }
                         }
                       },
-                      child: Icon(Icons.add_a_photo),
+                      child: Icon(Icons.add_a_photo_rounded),
                     );
                   }
                   return Padding(

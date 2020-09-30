@@ -43,10 +43,10 @@ class MyApp extends StatelessWidget {
     return OKToast(
         child: MultiProvider(
           providers: [
-            ChangeNotifierProvider.value(value: UserProvider()),
-            ChangeNotifierProvider.value(value: ThemeProvider())
+            ChangeNotifierProvider.value(value: UserModel()),
+            ChangeNotifierProvider.value(value: ThemeModel())
           ],
-          child: Consumer<ThemeProvider>(
+          child: Consumer<ThemeModel>(
             builder: (context, provider, child) {
               return MaterialApp(
                 theme: theme ?? provider.getTheme(),

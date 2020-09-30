@@ -35,7 +35,7 @@ class _CategoryPageState extends State<CategoryPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: Theme.of(context).primaryColorLight,
+        // backgroundColor: Theme.of(context).primaryColorLight,
         floatingActionButton: OpenContainer(
           transitionType: ContainerTransitionType.fade,
           openBuilder: (context, _) {

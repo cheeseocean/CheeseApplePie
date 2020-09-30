@@ -1,6 +1,9 @@
 import 'package:cheese_flutter/provider/providers.dart';
 import 'package:cheese_flutter/routes/fluro_navigator.dart';
+import 'package:cheese_flutter/routes/login/login_router.dart';
 import 'package:cheese_flutter/routes/mine/mine_router.dart';
+import 'package:cheese_flutter/widgets/confirm_dialog.dart';
+import 'package:fluro/fluro.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -16,7 +19,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     ThemeMode themeMode =
-        Provider.of<ThemeProvider>(context, listen: false).getThemeMode();
+        Provider.of<ThemeModel>(context, listen: false).getThemeMode();
     String darkMode;
     switch (themeMode.value) {
       case 'Dark':
@@ -52,8 +55,21 @@ class _SettingsPageState extends State<SettingsPage> {
                 padding: EdgeInsets.only(top: 20.0),
                 child: RaisedButton(
                   color: Colors.redAccent,
-                  onPressed: () {},
-                  child: Text("退出当前帐号", style: TextStyle(color: Colors.white),),
+                  onPressed: () {
+                    showDialog<bool>(
+                            context: context,
+                            builder: (_) => ConfirmDialog(hint: "退出帐号将清除本地缓存"))
+                        .then((result) => result
+                            ? NavigatorUtils.push(
+                                context, LoginRouter.loginPage,
+                                transition: TransitionType.fadeIn,
+                                clearStack: true)
+                            : null);
+                  },
+                  child: Text(
+                    "退出当前帐号",
+                    style: TextStyle(color: Colors.white),
+                  ),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(50.0)),
                 ),

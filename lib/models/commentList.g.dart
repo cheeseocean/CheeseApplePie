@@ -34,5 +34,5 @@ Map<String, dynamic> _$CommentListToJson(CommentList instance) =>
       'number': instance.number,
       'empty': instance.empty,
       'pageable': instance.pageable?.toJson(),
-      'comments': instance.content?.map((e) => e?.toJson())?.toList(),
+      'content': instance.content?.map((e) => e?.toJson())?.toList(),
     };

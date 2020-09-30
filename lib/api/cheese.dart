@@ -1,21 +1,19 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:cheese_flutter/common/intercepters.dart';
-import 'package:cheese_flutter/provider/providers.dart';
 import 'package:cheese_flutter/common/page_parameter.dart';
 import 'package:cheese_flutter/models/commentList.dart';
+import 'package:cheese_flutter/models/course.dart';
 import 'package:cookie_jar/cookie_jar.dart';
-import 'package:dio/adapter.dart';
+import 'package:dio/dio.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:flutter/widgets.dart';
-import 'package:dio/dio.dart';
-import 'package:oktoast/oktoast.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:provider/provider.dart';
 import 'package:http_parser/http_parser.dart';
+import 'package:path_provider/path_provider.dart';
 
-import '../models/index.dart';
 import '../common/global.dart';
+import '../models/index.dart';
 
 class Cheese {
   Cheese([this.context]) {
@@ -131,7 +129,8 @@ class Cheese {
     var reviewJson = {"content": content, "parent_id": parentId};
     // print("hell${reviewJson.toString()}");
     FormData reviewForm = FormData.fromMap({
-      "meta-data": MultipartFile.fromString(JsonEncoder().convert(reviewJson), contentType: MediaType.parse("application/json"))
+      "meta-data": MultipartFile.fromString(JsonEncoder().convert(reviewJson),
+          contentType: MediaType.parse("application/json"))
     });
     Response response =
         await dio.post("/posts/$postId/comments/", data: reviewForm);
@@ -146,7 +145,8 @@ class Cheese {
   static Future<BubbleList> getBubbleList(String requestResUrl,
       {PageParameter pageParameter}) async {
     print(pageParameter.toMap());
-    Response response = await dio.get(requestResUrl, queryParameters: pageParameter.toMap());
+    Response response =
+        await dio.get(requestResUrl, queryParameters: pageParameter.toMap());
     return BubbleList.fromJson(response.data);
   }
 
@@ -161,9 +161,18 @@ class Cheese {
       queryParams["commented_id"] = "0";
     print(queryParams);
     Response response =
-        await dio.get("/posts/$postId/comments", queryParameters: queryParams );
+        await dio.get("/posts/$postId/comments", queryParameters: queryParams);
     return CommentList.fromJson(response.data);
   }
 
+  static Future<Result> uploadTimetable(List<Course> courses) async {
+    Response response =
+        await dio.post("/user/timetable", data: json.encode(courses));
+    return Result.fromJson(response.data);
+  }
 
+  static Future<List<Course>> getTimetable() async{
+    Response response = await dio.get("/user/timetable");
+    return (response.data as List).map((e) => e == null ? null : Course.fromJson(e as Map<String, dynamic>));
+  }
 }

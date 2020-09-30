@@ -39,7 +39,7 @@ class _BubbleDetailsPageState extends State<BubbleDetailsPage> {
           textAlign: TextAlign.start,
         ),
 
-        imageUrls: _bubble.images,
+        imageUrls: _bubble.imageUrls,
 
         footer: IconButton(icon: Icon(Icons.thumb_up), onPressed: () {}),
       );

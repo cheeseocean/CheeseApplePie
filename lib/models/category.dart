@@ -6,9 +6,7 @@ part 'category.g.dart';
 class Category {
   int id;
   String description;
-  @JsonKey(name: "category_name")
   String categoryName;
-  @JsonKey(name: "avatar_url")
   String avatarUrl;
 
   Category();

@@ -52,7 +52,7 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
       Cheese.getUserInfo().then((user) {
         print('getUser');
         _user = user;
-        Provider.of<UserProvider>(context, listen: false).user = _user;
+        Provider.of<UserModel>(context, listen: false).user = _user;
         print('finish');
       }).catchError((err) => print(err));
     }
@@ -87,7 +87,7 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
   Widget get tabBarWidget => PreferredSize(
         preferredSize: Size.fromHeight(46.0),
         child: Material(
-          color: Theme.of(context).backgroundColor,
+          color: Theme.of(context).canvasColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.only(
                 topLeft: Radius.circular(8.0), topRight: Radius.circular(8.0)),
@@ -131,7 +131,9 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                 child: Hero(
                   tag: "avatar",
                   child: InkWell(
-                    onTap: () {},
+                    onTap: () {
+                      NavigatorUtils.push(context, MineRouter.userDetailsPage);
+                    },
                     child: CircleAvatar(
                       // backgroundColor: Colors.amber,
                       backgroundImage: _user.avatarUrl != null
@@ -182,10 +184,10 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
 
   Widget build(BuildContext context) {
     //TODO 这里有BUG未处理
-    Provider.of<UserProvider>(context).user;
+    Provider.of<UserModel>(context).user;
 
     return Scaffold(
-      backgroundColor: Theme.of(context).primaryColorLight,
+      // backgroundColor: Theme.of(context).primaryColorLight,
       body: DefaultTabController(
         length: 2,
         child: NestedScrollView(
@@ -193,6 +195,7 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
           headerSliverBuilder: (BuildContext context, bool innerBoxIsScrolled) {
             return [
               SliverAppBar(
+                backgroundColor: Theme.of(context).canvasColor,
                 actions: [settingsButton],
                 flexibleSpace: FlexibleSpaceBar(
                   collapseMode: CollapseMode.pin,
@@ -203,7 +206,8 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                   child: Opacity(
                     opacity: _avatarOpacity,
                     child: InkWell(
-                      onTap: () {},
+                      onTap: () {
+                      },
                       child: CircleAvatar(
                         // backgroundColor: Colors.amber,
                         backgroundImage: _user.avatarUrl != null

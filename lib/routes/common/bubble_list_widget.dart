@@ -5,8 +5,9 @@ import 'package:cheese_flutter/widgets/open_container.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:like_button/like_button.dart';
+
 import 'bubble_details_page.dart';
 import 'item_wrapper.dart';
 
@@ -98,8 +99,72 @@ class _BubbleListWidgetState extends State<BubbleListWidget>
       child: Builder(
         builder: (context) {
           return EasyRefresh(
-            header: BallPulseHeader(),
-            footer: BallPulseFooter(),
+            header: CustomHeader(
+                enableInfiniteRefresh: false,
+                extent: 40.0,
+                triggerDistance: 50.0,
+                headerBuilder: (context,
+                    loadState,
+                    pulledExtent,
+                    loadTriggerPullDistance,
+                    loadIndicatorExtent,
+                    axisDirection,
+                    float,
+                    completeDuration,
+                    enableInfiniteLoad,
+                    success,
+                    noMore) {
+                  return Stack(
+                    children: <Widget>[
+                      Positioned(
+                        bottom: 0.0,
+                        left: 0.0,
+                        right: 0.0,
+                        child: Container(
+                          width: 30.0,
+                          height: 30.0,
+                          child: SpinKitCircle(
+                            color: Colors.green,
+                            size: 30.0,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }),
+            footer:CustomFooter(
+                enableInfiniteLoad: false,
+                extent: 40.0,
+                triggerDistance: 50.0,
+                footerBuilder: (context,
+                    loadState,
+                    pulledExtent,
+                    loadTriggerPullDistance,
+                    loadIndicatorExtent,
+                    axisDirection,
+                    float,
+                    completeDuration,
+                    enableInfiniteLoad,
+                    success,
+                    noMore) {
+                  return Stack(
+                    children: <Widget>[
+                      Positioned(
+                        bottom: 0.0,
+                        left: 0.0,
+                        right: 0.0,
+                        child: Container(
+                          width: 30.0,
+                          height: 30.0,
+                          child: SpinKitCircle(
+                            color: Colors.green,
+                            size: 30.0,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                }),
             onRefresh: _onRefresh,
             onLoad: _onLoadMore,
             child: ListView.separated(
@@ -126,7 +191,7 @@ class _BubbleListWidgetState extends State<BubbleListWidget>
   Widget getItem(Bubble bubble) {
     // return BubbleListItem(bubble: bubble);
     return OpenContainer(
-      closedColor: Theme.of(context).backgroundColor,
+      closedColor: Theme.of(context).canvasColor,
       closedElevation: 0.0,
       closedBuilder: (context, openContainer) {
         return ItemWrapper(
@@ -140,7 +205,7 @@ class _BubbleListWidgetState extends State<BubbleListWidget>
               style: TextStyle(fontSize: 16, wordSpacing: 1.0),
               textAlign: TextAlign.start,
             ),
-            imageUrls: bubble.images,
+            imageUrls: bubble.imageUrls,
             footer: footer);
       },
       transitionType: ContainerTransitionType.fade,
@@ -174,7 +239,8 @@ class _BubbleListWidgetState extends State<BubbleListWidget>
                       dotSecondaryColor: Colors.red,
                     ),
                     likeBuilder: (bool isLiked) {
-                      return Icon(Icons.favorite,
+                      return Icon(
+                        Icons.favorite,
                         color: isLiked ? Colors.red : Colors.grey[700],
                         size: 18.0,
                       );
