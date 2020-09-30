@@ -1,12 +1,12 @@
 import 'package:cheese_flutter/api/cheese.dart';
 import 'package:cheese_flutter/common/page_parameter.dart';
 import 'package:cheese_flutter/models/comment.dart';
-import 'package:cheese_flutter/models/errorResult.dart';
 import 'package:cheese_flutter/models/index.dart';
 import 'package:cheese_flutter/routes/common/item_wrapper.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
+import 'package:like_button/like_button.dart';
 import 'package:oktoast/oktoast.dart';
 
 class BubbleDetailsPage extends StatefulWidget {
@@ -26,40 +26,55 @@ class _BubbleDetailsPageState extends State<BubbleDetailsPage> {
   final GlobalKey _contentKey = GlobalKey();
   TextEditingController _replyController = TextEditingController();
 
-  Widget get postInfo => ItemWrapper(
-        avatar: _bubble.avatarUrl,
-        name: _bubble.nickname,
-        date: _bubble.createdAt,
-        // action:
-        //     IconButton(icon: Icon(Icons.arrow_drop_down), onPressed: () {}),
-        content: Text(
-          _bubble.content,
-          key: _contentKey,
-          maxLines: 6,
-          textAlign: TextAlign.start,
+  Widget get postInfo => SliverToBoxAdapter(
+        child: ItemWrapper(
+          avatar: _bubble.avatarUrl,
+          name: _bubble.nickname,
+          date: _bubble.createdAt.month.toString(),
+          // action:
+          //     IconButton(icon: Icon(Icons.arrow_drop_down), onPressed: () {}),
+          content: Text(
+            _bubble.content,
+            key: _contentKey,
+            maxLines: 6,
+            textAlign: TextAlign.start,
+          ),
+
+          imageUrls: _bubble.imageUrls,
+
+          footer: IconButton(icon: Icon(Icons.thumb_up), onPressed: () {}),
+          showBottomDivider: true,
         ),
-
-        imageUrls: _bubble.imageUrls,
-
-        footer: IconButton(icon: Icon(Icons.thumb_up), onPressed: () {}),
       );
 
   Widget getItem(int index) {
     Comment currentComment = _commentList[index];
     print(currentComment.toJson());
     return ItemWrapper(
+      scale: 0.6,
       avatar: currentComment.avatarUrl,
       name: currentComment.nickname,
-      date: currentComment.createdAt,
+      date: currentComment.createdAt.month.toString(),
       action: IconButton(
-        icon: Icon(
-          Icons.thumb_up,
-        ),
+        icon: LikeButton(
+            likeCount: currentComment.starCount,
+            circleColor: CircleColor(start: Colors.red, end: Colors.red),
+            bubblesColor: BubblesColor(
+              dotPrimaryColor: Colors.red,
+              dotSecondaryColor: Colors.red,
+            ),
+            likeBuilder: (bool isLiked) {
+              return Icon(
+                Icons.favorite,
+                color: isLiked ? Colors.red : Colors.grey[700],
+                size: 18.0,
+              );
+            }),
         onPressed: () {},
       ),
       content: Text(
-        _bubble.content,
-        maxLines: 6,
+        currentComment.content,
+        // maxLines: 6,
         textAlign: TextAlign.start,
       ),
       footer: Text("查看剩余${currentComment.subCommentCount}条评论"),
@@ -142,13 +157,16 @@ class _BubbleDetailsPageState extends State<BubbleDetailsPage> {
             physics: physics,
             slivers: [
               header,
+              postInfo,
+              // Divider(),
+              SliverToBoxAdapter(
+                  child: ListTile(
+                leading: Text("最新评论"),
+              )),
               SliverList(
                   delegate: SliverChildBuilderDelegate((context, index) {
-                if (index == 0)
-                  return postInfo;
-                else
-                  return getItem(index - 1);
-              }, childCount: _commentList.length + 1)),
+                return getItem(index);
+              }, childCount: _commentList.length)),
               footer,
             ],
           );

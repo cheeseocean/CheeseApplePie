@@ -13,9 +13,9 @@ Bubble _$BubbleFromJson(Map<String, dynamic> json) {
     ..content = json['content'] as String
     ..tags = json['tags'] as String
     ..avatarUrl = json['avatarUrl'] as String
-    ..createdAt = json['createdAt'] as String
+    ..createdAt = DateTime.parse(json['createdAt'] as String)
     ..categoryName = json['categoryName'] as String
-    ..startCount = json['startCount'] as int
+    ..starCount = json['starCount'] as int
     ..commentCount = json['commentCount'] as int
     ..imageUrls = (json['imageUrls'] as List)?.map((e) => e as String)?.toList()
     ..commentUrl = json['commentUrl'] as String
@@ -30,7 +30,7 @@ Map<String, dynamic> _$BubbleToJson(Bubble instance) => <String, dynamic>{
       'avatarUrl': instance.avatarUrl,
       'createdAt': instance.createdAt,
       'categoryName': instance.categoryName,
-      'startCount': instance.startCount,
+      'starCount': instance.starCount,
       'commentCount': instance.commentCount,
       'imageUrls': instance.imageUrls,
       'commentUrl': instance.commentUrl,

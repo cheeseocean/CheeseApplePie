@@ -15,10 +15,32 @@ class User {
   String bio;
   String birth;
   int gender;
-  String createdAt;
-  String updatedAt;
+  DateTime createdAt;
+  DateTime updatedAt;
+
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 
   Map<String, dynamic> toJson() => _$UserToJson(this);
+
+  @override
+  bool operator ==(Object other) {
+   bool result = false;
+   if(other is User){
+     result = this.id == other.id &&
+              this.username == other.username &&
+              this.gender == other.gender &&
+              this.location == other.location &&
+              this.nickname == other.nickname &&
+              this.avatarUrl == other.avatarUrl &&
+              this.birth == other.birth &&
+              this.email == other.email && this.bio == other.email && this.createdAt == other.createdAt;
+   }
+   return result;
+  }
+
+  @override
+  // TODO: implement hashCode
+  int get hashCode => super.hashCode;
+
 }

@@ -64,7 +64,7 @@ class _CommunityPageState extends State<CommunityPage> {
                       // boxShadow: [BoxShadow(offset: Offset(0, 1))],
                       borderRadius: BorderRadius.all(Radius.circular(10.0)),
                       gradient: LinearGradient(
-                          colors: [Colors.lightBlue[100], Colors.cyan[100]])),
+                          colors: [Colors.lightBlue[300], Colors.cyan[600]])),
                   child: InkWell(
                     focusColor: Colors.yellow,
                     onTap: () {
@@ -73,7 +73,7 @@ class _CommunityPageState extends State<CommunityPage> {
                     },
                     child: Text(
                       _categoryList.content[index].categoryName,
-                      style: TextStyle(fontWeight: FontWeight.w400),
+                      style: Theme.of(context).textTheme.headline2,
                     ),
                   ));
             },

@@ -22,7 +22,7 @@ class _SplashPageState extends State<SplashPage> {
     SchedulerBinding.instance.addPostFrameCallback(
       (Duration _) {
         Future<void>.delayed(
-          const Duration(seconds: 2),
+          const Duration(seconds: 1),
           () {
             Navigator.of(context).pushReplacement(
               PageRouteBuilder<void>(

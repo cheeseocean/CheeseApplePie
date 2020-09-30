@@ -49,6 +49,7 @@ class Cheese {
     // 添加缓存插件
     // dio.interceptors.add(Global.netCache);
     // 设置用户token（可能为null，代表未登录）
+    // print("token${Global.profile.token}");
     dio.options.headers[HttpHeaders.authorizationHeader] = Global.profile.token;
     // 在调试模式下需要抓包调试，所以我们使用代理，并禁用HTTPS证书校验
     // if (!Global.isRelease) {
@@ -64,11 +65,6 @@ class Cheese {
     // }
   }
 
-  // Future getGithubUser() async {
-  //   Response response = await dio.get("/users/xxxcrel");
-  //   print(response.data);
-  // }
-
   static Future<Result> getVerifyCode(String email) async {
     Response response =
         await dio.get("/code/email", queryParameters: {"address": email});
@@ -79,12 +75,14 @@ class Cheese {
     return Result.fromJson(response.data);
   }
 
+  //register
   static Future<Result> register(Map<String, dynamic> registerInfo) async {
     FormData reigsterForm = FormData.fromMap(registerInfo);
     Response response = await dio.post("/register", data: reigsterForm);
     return Result.fromJson(response.data);
   }
 
+  //login
   static Future<Result> login(String username, String password) async {
     String jwtToken;
     var loginForm = {"username": username, "password": password};
@@ -100,8 +98,28 @@ class Cheese {
   }
 
   static Future<User> getUserInfo() async {
-    Response response = await dio.get("/user");
+    Response response = await dio.get("/user/profile");
     return User.fromJson(response.data);
+  }
+
+  static Future<Result> updateAvatar(String avatarPath) async {
+    //写后台了
+    // num timestamp = DateTime.now().microsecondsSinceEpoch;
+    // String avatarSuffix = avatarPath.substring(avatarPath.lastIndexOf("."));
+    // String newAvatarName = "${Global.profile.user.username}_avatar_${timestamp}_$avatarSuffix";
+    // print(newAvatarName);
+    FormData avatar = FormData.fromMap(
+        {"update_avatar": await MultipartFile.fromFile(avatarPath)});
+    Response response = await dio.post("/user/profile", data: avatar);
+    return Result.fromJson(response.data);
+  }
+
+  static Future<Result> updateInfo(
+      String updatedField, String updatedValue) async {
+    Response response = await dio.post("/user/profile",
+        data: jsonEncode(
+            {"updatedField": updatedField, "updatedValue": updatedValue}));
+    return Result.fromJson(response.data);
   }
 
   static Future<Result> publishBubble(MultipartFile metaData,
@@ -124,6 +142,14 @@ class Cheese {
     return Result.fromJson(response.data);
   }
 
+  static Future<int> starPost(int postId) async {
+    Response response = await dio.get("/posts/$postId/stars");
+    return response.statusCode;
+  }
+  static Future<int> unstarPost(int postId) async{
+    Response response = await dio.delete("/posts/$postId/stars");
+    return response.statusCode;
+  }
   static Future<Result> addReview(int postId, String content,
       {int parentId}) async {
     var reviewJson = {"content": content, "parent_id": parentId};
@@ -171,8 +197,9 @@ class Cheese {
     return Result.fromJson(response.data);
   }
 
-  static Future<List<Course>> getTimetable() async{
+  static Future<List<Course>> getTimetable() async {
     Response response = await dio.get("/user/timetable");
-    return (response.data as List).map((e) => e == null ? null : Course.fromJson(e as Map<String, dynamic>));
+    return (response.data as List).map(
+        (e) => e == null ? null : Course.fromJson(e as Map<String, dynamic>));
   }
 }

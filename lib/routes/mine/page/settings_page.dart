@@ -59,12 +59,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     showDialog<bool>(
                             context: context,
                             builder: (_) => ConfirmDialog(hint: "退出帐号将清除本地缓存"))
-                        .then((result) => result
-                            ? NavigatorUtils.push(
-                                context, LoginRouter.loginPage,
-                                transition: TransitionType.fadeIn,
-                                clearStack: true)
-                            : null);
+                        .then((result) {
+                      if (result) {
+                        context.read<UserModel>().clearUserCache();
+                        NavigatorUtils.push(context, LoginRouter.loginPage,
+                            transition: TransitionType.fadeIn,
+                            clearStack: true);
+                      }
+                    });
                   },
                   child: Text(
                     "退出当前帐号",

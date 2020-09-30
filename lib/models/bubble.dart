@@ -10,9 +10,9 @@ class Bubble {
   String content;
   String tags;
   String avatarUrl;
-  String createdAt;
+  DateTime createdAt;
   String categoryName;
-  int startCount;
+  int starCount;
   int commentCount;
   List<String> imageUrls;
   String commentUrl;

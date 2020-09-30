@@ -44,6 +44,7 @@ class LoggingInterceptor extends Interceptor{
   @override
   Future onError(DioError err) {
     Log.d('----------Error-----------');
+    Log.d('Error Response: ${err.response.data} ------');
     return super.onError(err);
   }
 }

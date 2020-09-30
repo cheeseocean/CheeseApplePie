@@ -17,8 +17,8 @@ User _$UserFromJson(Map<String, dynamic> json) {
     ..bio = json['bio'] as String
     ..birth = json['birth'] as String
     ..gender = json['gender'] as int
-    ..createdAt = json['createdAt'] as String
-    ..updatedAt = json['updatedAt'] as String;
+    ..createdAt = DateTime.parse(json['createdAt'] as String);
+    // ..updatedAt = DateTime.parse(json['updatedAt'] as String);
 }
 
 Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
@@ -31,6 +31,6 @@ Map<String, dynamic> _$UserToJson(User instance) => <String, dynamic>{
       'bio': instance.bio,
       'birth': instance.birth,
       'gender': instance.gender,
-      'createdAt': instance.createdAt,
-      'updatedAt': instance.updatedAt,
+      'createdAt': instance.createdAt.toIso8601String(),
+      // 'updatedAt': instance.updatedAt,
     };

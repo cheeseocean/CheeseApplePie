@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:like_button/like_button.dart';
+import 'package:oktoast/oktoast.dart';
 
 import 'bubble_details_page.dart';
 import 'item_wrapper.dart';
@@ -27,6 +28,8 @@ class BubbleListWidget extends StatefulWidget {
 
 class _BubbleListWidgetState extends State<BubbleListWidget>
     with AutomaticKeepAliveClientMixin {
+  EasyRefreshController _refreshController = EasyRefreshController();
+
   Widget get bubbleAction => FlatButton(
         onPressed: () {},
         child: Icon(Icons.expand_more_rounded),
@@ -58,12 +61,16 @@ class _BubbleListWidgetState extends State<BubbleListWidget>
       if (mounted) {
         Cheese.getBubbleList(widget.requestResUrl,
                 pageParameter: PageParameter(
-                    start: _bubbleList[0].createdAt, size: _pageSize))
+                    start: _bubbleList[0].createdAt.millisecondsSinceEpoch, size: _pageSize))
             .then((value) {
           if (value.content != null || value.content.isNotEmpty) {
             setState(() {
               _bubbleList.insertAll(0, value.content);
+              _refreshController.finishRefresh(success: true);
             });
+          } else {
+            _refreshController.finishRefresh(noMore: true);
+            showToast("没有更多了, 等会在看吧");
           }
         });
       }
@@ -76,16 +83,20 @@ class _BubbleListWidgetState extends State<BubbleListWidget>
         print("pageNumber: $_nextPageNumber");
         Cheese.getBubbleList(widget.requestResUrl,
                 pageParameter: PageParameter(
-                    end: _bubbleList[_bubbleList.length - 1].createdAt,
+                    end: _bubbleList[_bubbleList.length - 1].createdAt.millisecondsSinceEpoch,
                     size: _pageSize))
             .then((bubbleList) {
           if (bubbleList.content != null || bubbleList.content.isNotEmpty) {
             setState(() {
               _bubbleList.addAll(bubbleList.content);
               _nextPageNumber++;
+              _refreshController.finishLoad(success: true);
             });
+          } else {
+            _refreshController.finishRefresh(noMore: true);
+            showToast("到底了, 不要在滑了");
           }
-        });
+        }).catchError((err) => showToast("加载失败"));
       }
     });
   }
@@ -132,7 +143,7 @@ class _BubbleListWidgetState extends State<BubbleListWidget>
                     ],
                   );
                 }),
-            footer:CustomFooter(
+            footer: CustomFooter(
                 enableInfiniteLoad: false,
                 extent: 40.0,
                 triggerDistance: 50.0,
@@ -165,6 +176,9 @@ class _BubbleListWidgetState extends State<BubbleListWidget>
                     ],
                   );
                 }),
+            controller: _refreshController,
+            enableControlFinishLoad: true,
+            enableControlFinishRefresh: true,
             onRefresh: _onRefresh,
             onLoad: _onLoadMore,
             child: ListView.separated(
@@ -197,7 +211,7 @@ class _BubbleListWidgetState extends State<BubbleListWidget>
         return ItemWrapper(
             avatar: bubble.avatarUrl,
             name: bubble.nickname,
-            date: bubble.createdAt,
+            date: bubble.createdAt.month.toString(),
             action: bubbleAction,
             content: Text(
               bubble.content,
@@ -206,7 +220,51 @@ class _BubbleListWidgetState extends State<BubbleListWidget>
               textAlign: TextAlign.start,
             ),
             imageUrls: bubble.imageUrls,
-            footer: footer);
+            footer: Container(
+              // color: Colors.yellow,
+              child: Row(
+                // crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Expanded(
+                      flex: 1,
+                      child: LikeButton(likeBuilder: (bool isLiked) {
+                        return Icon(
+                          Icons.messenger_rounded,
+                          color: Colors.grey[700],
+                          size: 18.0,
+                        );
+                      })),
+                  Expanded(
+                    flex: 1,
+                    child: LikeButton(
+                        likeCount: bubble.starCount,
+                        circleColor:
+                            CircleColor(start: Colors.red, end: Colors.red),
+                        bubblesColor: BubblesColor(
+                          dotPrimaryColor: Colors.red,
+                          dotSecondaryColor: Colors.red,
+                        ),
+                        isLiked: bubble.starred,
+                        onTap: (isLiked) async {
+                          int statusCode;
+                          if (isLiked) {
+                            statusCode = await Cheese.unstarPost(bubble.id);
+                          } else {
+                            statusCode = await Cheese.starPost(bubble.id);
+                          }
+                          return statusCode == 200 ? !isLiked : null;
+                        },
+                        likeBuilder: (bool isLiked) {
+                          return Icon(
+                            Icons.favorite,
+                            color: isLiked ? Colors.red : Colors.grey[700],
+                            size: 18.0,
+                          );
+                        }),
+                  ),
+                ],
+              ),
+            ));
       },
       transitionType: ContainerTransitionType.fade,
       openBuilder: (context, _) {
@@ -214,38 +272,4 @@ class _BubbleListWidgetState extends State<BubbleListWidget>
       },
     );
   }
-
-  Widget get footer => Container(
-        // color: Colors.yellow,
-        child: Row(
-          // crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Expanded(
-                flex: 1,
-                child: LikeButton(likeBuilder: (bool isLiked) {
-                  return Icon(
-                    Icons.messenger_rounded,
-                    color: Colors.grey[700],
-                    size: 18.0,
-                  );
-                })),
-            Expanded(
-                flex: 1,
-                child: LikeButton(
-                    circleColor:
-                        CircleColor(start: Colors.red, end: Colors.red),
-                    bubblesColor: BubblesColor(
-                      dotPrimaryColor: Colors.red,
-                      dotSecondaryColor: Colors.red,
-                    ),
-                    likeBuilder: (bool isLiked) {
-                      return Icon(
-                        Icons.favorite,
-                        color: isLiked ? Colors.red : Colors.grey[700],
-                        size: 18.0,
-                      );
-                    })),
-          ],
-        ),
-      );
 }

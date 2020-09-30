@@ -220,8 +220,8 @@ class Week extends StatefulWidget {
 
   @override
   State createState() {
-    print("weekNumber:$weekNumber createState");
-    print("semester:$semester");
+    // print("weekNumber:$weekNumber createState");
+    // print("semester:$semester");
     return _WeekState();
   }
 }
@@ -239,36 +239,36 @@ class _WeekState extends State<Week> {
 
   Course addButton;
 
-  @override
-  void initState() {
-    super.initState();
-    print("week:${widget.weekNumber} initState");
-    // _items.clear();
-  }
-
-  @override
-  void didUpdateWidget(Week oldWidget) {
-    print("week:${widget.weekNumber} didUpdateWidget");
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
-  void deactivate() {
-    print("week:${widget.weekNumber} deactivate");
-    super.deactivate();
-  }
-
-  @override
-  void didChangeDependencies() {
-    print("week:${widget.weekNumber} didChangeDependencies");
-    super.didChangeDependencies();
-  }
-
-  @override
-  void dispose() {
-    print("week:${widget.weekNumber} dispose");
-    super.dispose();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   print("week:${widget.weekNumber} initState");
+  //   // _items.clear();
+  // }
+  //
+  // @override
+  // void didUpdateWidget(Week oldWidget) {
+  //   print("week:${widget.weekNumber} didUpdateWidget");
+  //   super.didUpdateWidget(oldWidget);
+  // }
+  //
+  // @override
+  // void deactivate() {
+  //   print("week:${widget.weekNumber} deactivate");
+  //   super.deactivate();
+  // }
+  //
+  // @override
+  // void didChangeDependencies() {
+  //   print("week:${widget.weekNumber} didChangeDependencies");
+  //   super.didChangeDependencies();
+  // }
+  //
+  // @override
+  // void dispose() {
+  //   print("week:${widget.weekNumber} dispose");
+  //   super.dispose();
+  // }
 
   void changeState() {
     setState(() {
@@ -348,7 +348,7 @@ class _WeekState extends State<Week> {
 
   @override
   Widget build(BuildContext context) {
-    print("week:${widget.weekNumber} build");
+    // print("week:${widget.weekNumber} build");
     restBlock = List.generate(10, (index) => index);
     consumedBlock = [];
     courseOfWeek = Provider.of<TimetableModel>(context).courses;
@@ -367,7 +367,7 @@ class _WeekState extends State<Week> {
     //   print(element.toJson());
     // });
     restBlock.removeWhere((index) => consumedBlock.contains(index));
-    print(restBlock);
+    // print(restBlock);
     return GestureDetector(
       onLongPressStart: onLongPressStart,
       onLongPressMoveUpdate: onLongPressMove,
@@ -419,7 +419,7 @@ class DisplayCard extends StatelessWidget {
     // if (course != null) {
     //   print(course.toJson());
     // }
-    print(course.color);
+    // print(course.color);
     return Positioned(
       width: perWeekWith,
       height: sectionHeight * course.length,

@@ -1,7 +1,6 @@
 import 'package:cheese_flutter/utils/screen_util.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 class ItemWrapper extends StatelessWidget {
   final String avatar;
@@ -11,6 +10,8 @@ class ItemWrapper extends StatelessWidget {
   final Widget content;
   final Widget footer;
   final List<String> imageUrls;
+  final double scale;
+  final bool showBottomDivider;
 
   ItemWrapper({
     @required this.avatar,
@@ -20,6 +21,8 @@ class ItemWrapper extends StatelessWidget {
     this.action,
     this.footer,
     this.imageUrls,
+    this.scale = 1.0,
+    this.showBottomDivider = false,
   });
 
   static String thumbnailSuffix = "@500w_500h_100q_r";
@@ -38,6 +41,9 @@ class ItemWrapper extends StatelessWidget {
   //其他数量时的高度
   var _heightOfOthers = ScreenUtil.screenWidth / 3;
 
+  var _imageGridTotalWidth = ScreenUtil.screenWidth;
+  var _imageGridTotalHeight;
+
   List<Widget> _children = <Widget>[];
 
   Widget _imageWidget(url) => ClipRRect(
@@ -51,8 +57,70 @@ class ItemWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     int imageCount = imageUrls?.length ?? 0;
+    if (imageCount != 0) {
+      calculateImageWidgetHeight(imageCount);
+    }
+    var headerWidget = SizedBox(
+      height: headerHeight * scale,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Expanded(
+              flex: 2,
+              child: Align(
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(avatar),
+                ),
+              )),
+          Expanded(
+            flex: 8,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  name,
+                  style: TextStyle(fontSize: 16.0 * (scale + 0.1)),
+                ),
+                Text(
+                  date,
+                  style: TextStyle(fontSize: 16.0 * (scale + 0.1)),
+                )
+              ],
+            ),
+          ),
+          Expanded(flex: 2, child: action ?? Container())
+        ],
+      ),
+    );
+    _children.add(headerWidget);
+    if (content != null) {
+      _children.add(content);
+    }
+    if (imageCount != 0) {
+      _children.add(Container(
+          height: _imageGridTotalHeight,
+          width: _imageGridTotalWidth,
+          child: buildImageGrid(imageUrls, _crossAxisCount)));
+    }
+    if (footer != null) {
+      _children.add(SizedBox(height: footerHeight * scale, child: footer));
+    }
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: itemPadding),
+      decoration: BoxDecoration(border: Border(bottom: Divider.createBorderSide(
+        context,
+        width: showBottomDivider ? 0.2 : 0.0,
+        color: showBottomDivider ? Colors.grey : Colors.transparent
+      ),)),
+      child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: _children),
+    );
+  }
+
+  void calculateImageWidgetHeight(int imageCount) {
     var _gridItemHeight;
-    var _gridTotalWidth = ScreenUtil.screenWidth;
     switch (imageCount) {
       case 1:
       case 2:
@@ -69,50 +137,7 @@ class ItemWrapper extends StatelessWidget {
       _mainAxisCount = imageCount ~/ _crossAxisCount;
     else
       _mainAxisCount = imageCount ~/ _crossAxisCount + 1;
-
-    var _gridTotalHeight = _gridItemHeight * _mainAxisCount;
-
-    var headerWidget = SizedBox(
-      height: headerHeight,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Expanded(
-              flex: 2,
-              child: Align(
-                child: CircleAvatar(
-                  backgroundImage: NetworkImage(avatar),
-                ),
-              )),
-          Expanded(
-            flex: 8,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [Text(name), Text(date)],
-            ),
-          ),
-          Expanded(flex: 2, child: action ?? Container())
-        ],
-      ),
-    );
-    _children.add(headerWidget);
-    if (content != null) {
-      _children.add(content);
-    }
-    if (imageCount != 0) {
-      _children.add(Container(
-          height: _gridTotalHeight,
-          width: _gridTotalWidth,
-          child: buildImageGrid(imageUrls, _crossAxisCount)));
-    }
-    if (footer != null) {
-      _children.add(SizedBox(height: footerHeight, child: footer));
-    }
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: itemPadding),
-      child: Column(children: _children),
-    );
+    _imageGridTotalHeight = _gridItemHeight * _mainAxisCount;
   }
 
   Widget buildImageGrid(List<String> imageUrls, int crossAxisCount) {

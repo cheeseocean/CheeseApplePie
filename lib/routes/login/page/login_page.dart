@@ -1,12 +1,14 @@
 import 'dart:ui';
 
 import 'package:cheese_flutter/api/cheese.dart';
+import 'package:cheese_flutter/provider/providers.dart';
 import 'package:cheese_flutter/routes/fluro_navigator.dart';
 import 'package:cheese_flutter/widgets/loading_dialog.dart';
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:oktoast/oktoast.dart';
+import 'package:provider/provider.dart';
 
 import '../login_router.dart';
 
@@ -134,6 +136,8 @@ class _LoginState extends State<LoginPage> {
 
     _usernameNode.addListener(usernameNodeListener);
     _passwordNode.addListener(passwordNodeListener);
+
+    _usernameController.text = Provider.of<UserModel>(context, listen: false).lastLogin;
   }
 
   @override
@@ -158,8 +162,6 @@ class _LoginState extends State<LoginPage> {
         showDialog(context: context, builder: (_) => LoadingDialog());
 
         Cheese.login(_username, _password).then((result) {
-          // print(result.data);
-          // showToast(result.data ?? "no message");
           setState(() {
             _logining = true;
           });
@@ -262,6 +264,7 @@ class _LoginState extends State<LoginPage> {
                 children: [
                   topLogo,
                   TextFormField(
+                    // initialValue: Provider.of<UserModel>(context).lastLogin,
                     autofocus: false,
                     focusNode: _usernameNode,
                     controller: _usernameController,

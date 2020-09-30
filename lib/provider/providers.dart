@@ -2,12 +2,11 @@ import 'package:cheese_flutter/common/web_page_transitions.dart';
 import 'package:cheese_flutter/res/colors.dart';
 import 'package:cheese_flutter/res/styles.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
-import '../models/index.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import '../common/global.dart';
+import '../models/index.dart';
 
 class ProfileChangeNotifier extends ChangeNotifier {
   Profile get _profile => Global.profile;
@@ -25,15 +24,24 @@ class UserModel extends ProfileChangeNotifier {
   // APP是否登录(如果有用户信息，则证明登录过)
   bool get isLogin => user != null;
 
+  String get lastLogin => _profile.lastLogin;
+
   //用户信息发生变化，更新用户信息并通知依赖它的子孙Widgets更新
   set user(User user) {
     // print("profileid ${_profile.user.username}");
-    if (user?.id != _profile.user?.id) {
-      _profile.lastLogin = _profile.user?.username;
+    if (_profile?.user != user || _profile.user == null) {
       _profile.user = user;
-      print("change user");
+      _profile.lastLogin = user?.username;
+      // print("updated User:${user.toJson()}");
+      // print("update user profile:${_profile.toJson()}");
       notifyListeners();
     }
+  }
+
+  void clearUserCache() {
+    _profile.user = null;
+    _profile.token = null;
+    notifyListeners();
   }
 }
 
@@ -76,8 +84,7 @@ class ThemeModel extends ProfileChangeNotifier {
       errorColor: isDarkMode ? Colours.dark_red : Colours.red,
       brightness: isDarkMode ? Brightness.dark : Brightness.light,
       primaryColor: isDarkMode ? Colours.dark_app_main : Colours.app_main,
-      primaryColorLight:
-          isDarkMode ? Colors.black : Colors.grey[300],
+      primaryColorLight: isDarkMode ? Colors.black : Colors.grey[300],
       //CircleAvatar使用
       primaryColorDark: isDarkMode ? Colors.black : Colors.grey[300],
       accentColor: isDarkMode ? Colours.dark_app_main : Colours.app_main,
@@ -107,17 +114,19 @@ class ThemeModel extends ProfileChangeNotifier {
         bodyText1: isDarkMode ? TextStyles.textDark : TextStyles.text,
         // Text文字样式
         bodyText2: isDarkMode ? TextStyles.textDark : TextStyles.text,
+        headline2: isDarkMode ? TextStyles.textWhite14 : TextStyles.text,
         subtitle2: isDarkMode ? TextStyles.textDark : TextStyles.text,
         button: isDarkMode ? TextStyles.textDark : TextStyles.text,
         caption: isDarkMode ? TextStyles.textDark : TextStyles.text,
       ),
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
-      buttonTheme: ButtonThemeData(highlightColor: Colors.transparent, splashColor: Colors.transparent),
+      buttonTheme: ButtonThemeData(
+          highlightColor: Colors.transparent, splashColor: Colors.transparent),
       cardTheme: CardTheme(margin: EdgeInsets.all(2.0), elevation: 0.5),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        contentPadding: EdgeInsets.symmetric(horizontal: 10),
+        contentPadding: EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
         errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10.0),
             borderSide: BorderSide(color: Colors.red)),
@@ -130,7 +139,7 @@ class ThemeModel extends ProfileChangeNotifier {
         enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(10.0)),
             borderSide: BorderSide(style: BorderStyle.none)),
-        fillColor: isDarkMode ? Colors.black: Colors.grey[300],
+        fillColor: isDarkMode ? Colors.black : Colors.grey[300],
         hintStyle: isDarkMode ? TextStyles.textDark : TextStyles.textDarkGray14,
       ),
       appBarTheme: AppBarTheme(
@@ -142,12 +151,14 @@ class ThemeModel extends ProfileChangeNotifier {
         textTheme: TextTheme(
             // Center Title的颜色
             // headline6: TextStyle(color: isDarkMode ? Colours.dark_text : Colours.text, fontSize: )
-            headline6: isDarkMode ? TextStyle(fontSize: 18.0, color: Colours.dark_text) : TextStyle(fontSize: 18.0, color: Colours.text)),
+            headline6: isDarkMode
+                ? TextStyle(fontSize: 18.0, color: Colours.dark_text)
+                : TextStyle(fontSize: 18.0, color: Colours.text)),
         color: isDarkMode ? Colours.dark_bg_gray : Colours.bg_gray,
         brightness: isDarkMode ? Brightness.dark : Brightness.light,
       ),
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        // selectedItemColor: Colors.amber,
+          // selectedItemColor: Colors.amber,
           unselectedLabelStyle:
               isDarkMode ? TextStyles.textDarkGray12 : TextStyles.text,
           selectedLabelStyle:

@@ -12,7 +12,8 @@ Comment _$CommentFromJson(Map<String, dynamic> json) {
     ..nickname = json['nickname'] as String
     ..username = json['username'] as String
     ..avatarUrl = json['avatarUrl'] as String
-    ..createdAt = json['createdAt'] as String
+    ..createdAt = DateTime.parse(json['createdAt'] as String)
+    ..starCount = json['starCount'] as int
     ..content = json['content'] as String
     ..parentId = json['parentId'] as num
     ..subCommentCount = json['subCommentCount'] as num;
@@ -24,6 +25,7 @@ Map<String, dynamic> _$CommentToJson(Comment instance) => <String, dynamic>{
       'username': instance.username,
       'avatarUrl': instance.avatarUrl,
       'createdAt': instance.createdAt,
+      'starCount':instance.starCount,
       'content': instance.content,
       'parentId': instance.parentId,
       'subCommentCount': instance.subCommentCount,

@@ -12,8 +12,10 @@ class Comment{
 
   String avatarUrl;
 
-  String createdAt;
+  DateTime createdAt;
   String content;
+
+  int starCount;
 
   num parentId;
 

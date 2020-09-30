@@ -1,19 +1,14 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:cheese_flutter/api/cheese.dart';
 import 'package:cheese_flutter/common/global.dart';
-import 'package:cheese_flutter/provider/providers.dart';
 import 'package:cheese_flutter/models/index.dart';
+import 'package:cheese_flutter/provider/providers.dart';
 import 'package:cheese_flutter/routes/common/bubble_list_widget.dart';
 import 'package:cheese_flutter/routes/fluro_navigator.dart';
 import 'package:cheese_flutter/routes/mine/mine_router.dart';
 import 'package:cheese_flutter/utils/screen_util.dart';
-import 'package:cheese_flutter/widgets/sample_list_item.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_easyrefresh/easy_refresh.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:provider/provider.dart';
@@ -31,7 +26,7 @@ class MinePage extends StatefulWidget {
 
 class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
   final cheese = Cheese();
-  User _user;
+  User _user = User();
 
   ScrollController _controller = ScrollController();
 
@@ -45,23 +40,24 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    print("MinePageState initState");
+    print('mine initState');
     _user = Global.profile.user ?? null;
     if (_user == null) {
       _user = User();
       Cheese.getUserInfo().then((user) {
-        print('getUser');
-        _user = user;
+        // _user = user;
+        // print(_user.toJson());
         Provider.of<UserModel>(context, listen: false).user = _user;
-        print('finish');
-      }).catchError((err) => print(err));
+        // showToast("用户加载成功");
+      }).catchError((err) {
+        // print(err);
+        // print("error User:${_user.toJson()}");
+        showToast("用户信息加载失败:请检查网络");
+      });
     }
-    print(ScreenUtil.screenHeight);
     _controller.addListener(() {
-      print("offset:${_controller.offset}");
       setState(() {
         double result = _controller.offset / 260;
-
         _avatarOpacity =
             _controller.offset / 260 >= 1.0 ? 1.0 : _controller.offset / 260;
       });
@@ -72,6 +68,11 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
   void dispose() {
     super.dispose();
   }
+
+  Widget get userAvatar => CircleAvatar(
+      backgroundImage: _user?.avatarUrl == null
+          ? AssetImage('assets/images/load_fail.png')
+          : NetworkImage(_user.avatarUrl));
 
   Widget get settingsButton => IconButton(
         icon: SvgPicture.asset(
@@ -131,16 +132,11 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                 child: Hero(
                   tag: "avatar",
                   child: InkWell(
-                    onTap: () {
-                      NavigatorUtils.push(context, MineRouter.userDetailsPage);
-                    },
-                    child: CircleAvatar(
-                      // backgroundColor: Colors.amber,
-                      backgroundImage: _user.avatarUrl != null
-                          ? NetworkImage(_user.avatarUrl)
-                          : AssetImage("assets/images/avatar_placeholder.jpg"),
-                    ),
-                  ),
+                      onTap: () {
+                        NavigatorUtils.push(
+                            context, MineRouter.userDetailsPage);
+                      },
+                      child: userAvatar),
                 ),
               ),
               Padding(
@@ -163,16 +159,9 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+
                   Chip(
-                    label: Text("95后"),
-                    backgroundColor: Colors.amberAccent[400],
-                  ),
-                  Chip(
-                    label: Text("17软本2班"),
-                    backgroundColor: Colors.lightBlue[300],
-                  ),
-                  Chip(
-                    label: Text("江西上饶"),
+                    label: Text(_user?.location?? "加载失败"),
                     backgroundColor: Colors.cyan[300],
                   )
                 ],
@@ -183,11 +172,9 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
       );
 
   Widget build(BuildContext context) {
-    //TODO 这里有BUG未处理
-    Provider.of<UserModel>(context).user;
-
+    print("mine build");
+    _user = Provider.of<UserModel>(context).user;
     return Scaffold(
-      // backgroundColor: Theme.of(context).primaryColorLight,
       body: DefaultTabController(
         length: 2,
         child: NestedScrollView(
@@ -201,21 +188,11 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                   collapseMode: CollapseMode.pin,
                   background: userProfile,
                 ),
-                leading: Padding(
-                  padding: EdgeInsets.only(left: 10.0),
+                leading: Container(
+                  padding: EdgeInsets.only(left:10.0),
                   child: Opacity(
                     opacity: _avatarOpacity,
-                    child: InkWell(
-                      onTap: () {
-                      },
-                      child: CircleAvatar(
-                        // backgroundColor: Colors.amber,
-                        backgroundImage: _user.avatarUrl != null
-                            ? NetworkImage(_user.avatarUrl)
-                            : AssetImage(
-                                "assets/images/avatar_placeholder.jpg"),
-                      ),
-                    ),
+                    child: InkWell(onTap: () {}, child: userAvatar),
                   ),
                 ),
                 leadingWidth: 42.0,

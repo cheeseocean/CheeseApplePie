@@ -43,6 +43,7 @@ class Global {
     if (_profile != null) {
       try {
         profile = Profile.fromJson(jsonDecode(_profile));
+        print("load profile:${profile.toJson()}");
       } catch (e) {
         print(e);
       }
@@ -50,7 +51,7 @@ class Global {
     if(_timetable != null){
       try{
         timetable = _timetable.map((item) => Course.fromJson(jsonDecode(item))).toList();
-        print(timetable.map((e) => print(e.toJson())));
+        // print(timetable.map((e) => print(e.toJson())));
       }catch(e){
         print(e);
       }
