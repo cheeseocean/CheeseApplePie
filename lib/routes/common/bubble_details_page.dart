@@ -30,7 +30,7 @@ class _BubbleDetailsPageState extends State<BubbleDetailsPage> {
         child: ItemWrapper(
           avatar: _bubble.avatarUrl,
           name: _bubble.nickname,
-          date: _bubble.createdAt.month.toString(),
+          date: _bubble.createdAt,
           // action:
           //     IconButton(icon: Icon(Icons.arrow_drop_down), onPressed: () {}),
           content: Text(
@@ -54,7 +54,7 @@ class _BubbleDetailsPageState extends State<BubbleDetailsPage> {
       scale: 0.6,
       avatar: currentComment.avatarUrl,
       name: currentComment.nickname,
-      date: currentComment.createdAt.month.toString(),
+      date: currentComment.createdAt,
       action: IconButton(
         icon: LikeButton(
             likeCount: currentComment.starCount,

@@ -5,7 +5,7 @@ import 'package:flutter/widgets.dart';
 class ItemWrapper extends StatelessWidget {
   final String avatar;
   final String name;
-  final String date;
+  final DateTime date;
   final Widget action;
   final Widget content;
   final Widget footer;
@@ -80,11 +80,11 @@ class ItemWrapper extends StatelessWidget {
               children: [
                 Text(
                   name,
-                  style: TextStyle(fontSize: 16.0 * (scale + 0.1)),
+                  style: TextStyle(fontSize: 16.0),
                 ),
                 Text(
-                  date,
-                  style: TextStyle(fontSize: 16.0 * (scale + 0.1)),
+                  '${date.month}-${date.day} ${date.hour}:${date.minute}',
+                  style: TextStyle(fontSize: 11.0, color: Colors.grey[600]),
                 )
               ],
             ),

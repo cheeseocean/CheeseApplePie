@@ -24,18 +24,47 @@ TextStyle get labelStyle => TextStyle(
     );
 
 class _HomePageState extends State<HomePage> {
-
   List<WebViewShortcut> shortcuts = [
-    WebViewShortcut(requestUrl: "http://www.nut.edu.cn/", icon: Icon(Icons.local_library_rounded, color: Colors.blue[200],), label: "学校官网"),
-    WebViewShortcut(requestUrl: "http://117.40.249.4/jwweb/", icon: Icon(Icons.school_rounded, color: Colors.blue[200]), label: "教务系统"),
-    WebViewShortcut(requestUrl: "http://mg.ac.senlanit.com/", icon: Icon(Icons.sensor_door_rounded, color: Colors.blue[200]), label: "门禁云"),
-    WebViewShortcut(requestUrl: "http://cz.senlanit.com/recharge/index.php", icon: Icon(Icons.flash_on_rounded, color: Colors.blue[200]), label: "缴电费"),
-    WebViewShortcut(requestUrl: "www.nut.edu.cn", icon: Icon(Icons.widgets_rounded, color: Colors.blue[200]), label: "全部组件"),
+    WebViewShortcut(
+        requestUrl: "http://www.nut.edu.cn/",
+        icon: Icon(
+          Icons.local_library_rounded,
+          color: Colors.amber,
+        ),
+        label: "学校官网"),
+    WebViewShortcut(
+        requestUrl: "http://117.40.249.4/jwweb/",
+        icon: Icon(Icons.school_rounded, color: Colors.greenAccent),
+        label: "教务系统"),
+    WebViewShortcut(
+        requestUrl: "http://mg.ac.senlanit.com/",
+        icon: Icon(Icons.sensor_door_rounded, color: Colors.blueAccent),
+        label: "门禁云"),
+    WebViewShortcut(
+        requestUrl: "http://cz.senlanit.com/recharge/index.php",
+        icon: Icon(Icons.flash_on_rounded, color: Colors.lime),
+        label: "缴电费"),
+    WebViewShortcut(
+        requestUrl: "www.nut.edu.cn",
+        icon: Icon(Icons.widgets_rounded, color: Colors.grey),
+        label: "全部组件"),
   ];
 
   List<Widget> unknownButtons = [
-    Container(child: Center(child: Text("hello"))),
-    Container(child: Center(child: Text("hello"))),
+    Text("快递代拿"),
+    Text("敬请期待..."),
+  ];
+  List<Widget> iconName = [
+    SvgPicture.asset(
+      "assets/svgs/deliver.svg",
+      width: 24.0,
+      height: 24.0,
+    ),
+    Icon(
+      Icons.workspaces_filled,
+      color: Colors.grey,
+      size: 24.0,
+    )
   ];
 
   Widget get banner => SliverToBoxAdapter(
@@ -43,8 +72,12 @@ class _HomePageState extends State<HomePage> {
           height: 150,
           child: new Swiper(
             itemBuilder: (BuildContext context, int index) {
-              return Card(
-                color: Colors.cyan[300],
+              return Container(
+
+                decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(10.0)),
+                child:Center(child:Text("广告位招租", style: TextStyle(fontSize: 18.0),)),
               );
             },
             itemCount: 3,
@@ -86,14 +119,19 @@ class _HomePageState extends State<HomePage> {
           banner,
           schoolSectionHeader,
           SliverGrid(
-              delegate: SliverChildBuilderDelegate((_, index) {
-                return LabelButton(icon: shortcuts[index].icon, label: Text(shortcuts[index].label), onTap: (){
-                  NavigatorUtils.goWebViewPage(context, "test", shortcuts[index].requestUrl);
-                },);
-              }, childCount: 5),
-              gridDelegate:
-                  SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5),
-            ),
+            delegate: SliverChildBuilderDelegate((_, index) {
+              return LabelButton(
+                icon: shortcuts[index].icon,
+                label: Text(shortcuts[index].label),
+                onTap: () {
+                  NavigatorUtils.goWebViewPage(
+                      context, "test", shortcuts[index].requestUrl);
+                },
+              );
+            }, childCount: 5),
+            gridDelegate:
+                SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 5),
+          ),
           SliverGrid(
               delegate: SliverChildBuilderDelegate((_, index) {
                 return Container(
@@ -103,7 +141,11 @@ class _HomePageState extends State<HomePage> {
                     decoration: BoxDecoration(
                         color: Theme.of(context).canvasColor,
                         borderRadius: BorderRadius.circular(10.0)),
-                    child: Center(child: SvgPicture.asset("assets/svgs/deliver.svg", width: 32.0, height: 32.0,)));
+                    child: Center(
+                        child: FlatButton.icon(
+                            onPressed: () {},
+                            icon: iconName[index],
+                            label: unknownButtons[index])));
               }, childCount: 2),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
@@ -116,9 +158,10 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-class WebViewShortcut{
+class WebViewShortcut {
   final String requestUrl;
   final Widget icon;
   final String label;
+
   WebViewShortcut({this.requestUrl, this.icon, this.label});
 }

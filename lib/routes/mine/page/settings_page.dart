@@ -54,7 +54,7 @@ class _SettingsPageState extends State<SettingsPage> {
               child: Padding(
                 padding: EdgeInsets.only(top: 20.0),
                 child: RaisedButton(
-                  color: Colors.redAccent,
+                  color: Theme.of(context).primaryColorLight,
                   onPressed: () {
                     showDialog<bool>(
                             context: context,
@@ -70,7 +70,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   },
                   child: Text(
                     "退出当前帐号",
-                    style: TextStyle(color: Colors.white),
+                    style: TextStyle(color: Colors.red),
                   ),
                   shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(50.0)),

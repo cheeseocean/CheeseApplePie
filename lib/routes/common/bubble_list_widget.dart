@@ -211,7 +211,7 @@ class _BubbleListWidgetState extends State<BubbleListWidget>
         return ItemWrapper(
             avatar: bubble.avatarUrl,
             name: bubble.nickname,
-            date: bubble.createdAt.month.toString(),
+            date: bubble.createdAt,
             action: bubbleAction,
             content: Text(
               bubble.content,
@@ -227,7 +227,8 @@ class _BubbleListWidgetState extends State<BubbleListWidget>
                 children: [
                   Expanded(
                       flex: 1,
-                      child: LikeButton(likeBuilder: (bool isLiked) {
+                      child: LikeButton(
+                          likeCount:bubble.commentCount,likeBuilder: (bool isLiked) {
                         return Icon(
                           Icons.messenger_rounded,
                           color: Colors.grey[700],

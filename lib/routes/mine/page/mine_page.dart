@@ -5,6 +5,7 @@ import 'package:cheese_flutter/provider/providers.dart';
 import 'package:cheese_flutter/routes/common/bubble_list_widget.dart';
 import 'package:cheese_flutter/routes/fluro_navigator.dart';
 import 'package:cheese_flutter/routes/mine/mine_router.dart';
+import 'package:cheese_flutter/routes/mine/page/profile_details_page.dart';
 import 'package:cheese_flutter/utils/screen_util.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -45,10 +46,10 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
     if (_user == null) {
       _user = User();
       Cheese.getUserInfo().then((user) {
-        // _user = user;
+        _user = user;
         // print(_user.toJson());
         Provider.of<UserModel>(context, listen: false).user = _user;
-        // showToast("用户加载成功");
+        showToast("用户加载成功");
       }).catchError((err) {
         // print(err);
         // print("error User:${_user.toJson()}");
@@ -143,7 +144,7 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                 padding: EdgeInsets.only(bottom: 10),
                 child: Text(
                   _user == null ? "用户未加载" : _user.nickname ?? "昵称未加载",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 24),
+                  style: TextStyle(fontWeight: FontWeight.w600, color:Colors.white,fontSize: 24),
                 ),
               ),
               Padding(
@@ -151,7 +152,7 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                 child: Text(
                   _user == null ? "用户未加载" : _user.bio ?? "个签未加载",
                   style: TextStyle(
-                      // color: Colors.grey[800],
+                      color: Colors.white,
                       fontWeight: FontWeight.w400,
                       fontSize: 14),
                 ),
@@ -159,7 +160,7 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-
+                  Chip(label: Text(convertGender(_user?.gender)), backgroundColor: Colors.greenAccent,),
                   Chip(
                     label: Text(_user?.location?? "加载失败"),
                     backgroundColor: Colors.cyan[300],
@@ -197,7 +198,7 @@ class _MinePageState extends State<MinePage> with TickerProviderStateMixin {
                 ),
                 leadingWidth: 42.0,
                 pinned: true,
-                expandedHeight: ScreenUtil.screenHeight / 2,
+                expandedHeight: 300,
                 forceElevated: innerBoxIsScrolled,
                 bottom: tabBarWidget,
               ),

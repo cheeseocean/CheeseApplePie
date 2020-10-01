@@ -41,6 +41,23 @@ class _CommunityPageState extends State<CommunityPage> {
           title: Text("社区"),
         ),
         body: ListView(children: [
+          Container(
+            height: 100.0,
+            padding: EdgeInsets.only(right: 10.0),
+            child:
+                Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+              Text(
+                "如果只是路过, 我在终点等你",
+                style: TextStyle(fontSize: 20.0, fontFamily: "LiuJianMa"),
+              ),
+              Padding(
+                padding: EdgeInsets.only(top: 10.0),
+                  child: Align(
+                alignment: Alignment.bottomRight,
+                child: Text("---每日一句"),
+              ))
+            ]),
+          ),
 
           ListTile(
               title: Text(
@@ -58,24 +75,33 @@ class _CommunityPageState extends State<CommunityPage> {
                 crossAxisCount: 2, childAspectRatio: 2.0),
             itemBuilder: (context, index) {
               return Container(
-                  padding: EdgeInsets.all(10.0),
-                  margin: EdgeInsets.all(2.0),
-                  decoration: BoxDecoration(
-                      // boxShadow: [BoxShadow(offset: Offset(0, 1))],
-                      borderRadius: BorderRadius.all(Radius.circular(10.0)),
-                      gradient: LinearGradient(
-                          colors: [Colors.lightBlue[300], Colors.cyan[600]])),
-                  child: InkWell(
-                    focusColor: Colors.yellow,
-                    onTap: () {
-                      NavigatorUtils.push(context,
-                          "/community/categories/${_categoryList.content[index].categoryName}");
-                    },
-                    child: Text(
-                      _categoryList.content[index].categoryName,
-                      style: Theme.of(context).textTheme.headline2,
-                    ),
-                  ));
+                padding: EdgeInsets.all(10.0),
+                margin: EdgeInsets.all(2.0),
+                decoration: BoxDecoration(
+                    // boxShadow: [BoxShadow(offset: Offset(0, 1))],
+                    borderRadius: BorderRadius.all(Radius.circular(10.0)),
+                    gradient: LinearGradient(
+                        colors: [Colors.lightBlue[300], Colors.cyan[600]])),
+                child: InkWell(
+                  focusColor: Colors.yellow,
+                  onTap: () {
+                    NavigatorUtils.push(context,
+                        "/community/categories/${_categoryList.content[index].categoryName}");
+                  },
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(_categoryList.content[index].categoryName,
+                            style: TextStyle(fontSize: 19.0)),
+                        Text(
+                          _categoryList.content[index].description,
+                          overflow: TextOverflow.fade,
+                          style: TextStyle(fontSize: 12.0),
+                        )
+                      ]),
+                ),
+              );
             },
             itemCount: _categoryList.totalElements ?? 0,
           )
