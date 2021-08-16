@@ -14,13 +14,13 @@ class Routers {
   static final List<IRouterProvider> _listRouter = [];
   static String home = '/home';
   static String webViewPage = '/webView';
-  
-  static final Router router = Router();
+
+  static final FluroRouter router = FluroRouter();
 
   static void init() {
     /// 指定路由跳转错误返回页
-    router.notFoundHandler = Handler(
-        handlerFunc: (widgets.BuildContext context, Map<String, List<String>> params) {
+    router.notFoundHandler = Handler(handlerFunc:
+        (widgets.BuildContext context, Map<String, List<String>> params) {
       widgets.debugPrint('未找到目标页');
       return NotFoundPage();
     });
@@ -34,7 +34,7 @@ class Routers {
     router.define(webViewPage, handler: Handler(handlerFunc: (_, params) {
       final String title = params['title']?.first;
       final String url = params['url']?.first;
-      return WebViewPage(title:title ,url: url);
+      return WebViewPage(title: title, url: url);
     }));
 
     _listRouter.clear();

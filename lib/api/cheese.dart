@@ -40,7 +40,9 @@ class Cheese {
     Directory appDocDir = await getApplicationDocumentsDirectory();
     String appDocPath = appDocDir.path;
     print(appDocPath);
-    cookieJar = PersistCookieJar(dir: appDocPath + "/.cookies/");
+    // cookieJar = PersistCookieJar(dir: appDocPath + "/.cookies/");
+    cookieJar =
+        PersistCookieJar(storage: FileStorage(appDocPath + "/.cookies/"));
     cookieManager = CookieManager(cookieJar);
     print(appDocPath);
     dio.interceptors.add(LoggingInterceptor());
@@ -69,8 +71,8 @@ class Cheese {
     Response response =
         await dio.get("/code/email", queryParameters: {"address": email});
 
-    var cookies = cookieJar.loadForRequest(response.request.uri);
-    print(CookieManager.getCookies(cookies));
+    var cookies = cookieJar.loadForRequest(response.requestOptions.uri);
+    // print(CookieManager.getCookies(cookies));
 
     return Result.fromJson(response.data);
   }
@@ -146,10 +148,12 @@ class Cheese {
     Response response = await dio.get("/posts/$postId/stars");
     return response.statusCode;
   }
-  static Future<int> unstarPost(int postId) async{
+
+  static Future<int> unstarPost(int postId) async {
     Response response = await dio.delete("/posts/$postId/stars");
     return response.statusCode;
   }
+
   static Future<Result> addReview(int postId, String content,
       {int parentId}) async {
     var reviewJson = {"content": content, "parent_id": parentId};

@@ -99,7 +99,6 @@ class _PublishBubblePageState extends State<PublishBubblePage> {
         final List<AssetEntity> result = await AssetPickerViewer.pushToViewer(
           context,
           currentIndex: index,
-          assets: images,
           themeData: AssetPicker.themeData(themeColor),
         );
         if (result != images && result != null) {
@@ -260,7 +259,6 @@ class _PublishBubblePageState extends State<PublishBubblePage> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
-
         actions: [
           publishButton,
         ],
@@ -276,14 +274,20 @@ class _PublishBubblePageState extends State<PublishBubblePage> {
                 physics: NeverScrollableScrollPhysics(),
                 itemCount: images.length == 0
                     ? 1
-                    : images.length == 9 ? 9 : images.length + 1,
+                    : images.length == 9
+                        ? 9
+                        : images.length + 1,
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3, childAspectRatio: 1.0),
                 itemBuilder: (context, index) {
                   if (index == _selectedImages) {
                     print(index);
                     return InkWell(
-                      customBorder: RoundedRectangleBorder(side: BorderSide(style: BorderStyle.solid, color: Colors.grey, width: 2.0)),
+                      customBorder: RoundedRectangleBorder(
+                          side: BorderSide(
+                              style: BorderStyle.solid,
+                              color: Colors.grey,
+                              width: 2.0)),
                       onTap: () async {
                         final List<AssetEntity> result =
                             await AssetPicker.pickAssets(context,

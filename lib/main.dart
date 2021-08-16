@@ -1,5 +1,4 @@
 import 'package:cheese_flutter/provider/providers.dart';
-import 'package:cheese_flutter/routes/login/page/container_page.dart';
 import 'package:cheese_flutter/splash_page.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
@@ -8,10 +7,6 @@ import 'package:oktoast/oktoast.dart';
 import 'package:provider/provider.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'common/global.dart';
-import 'routes/login/page/login_page.dart';
-import 'routes/login/page/register_page.dart';
-import 'package:flutter/scheduler.dart';
-
 import 'routes/not_found_page.dart';
 import 'routes/routers.dart';
 
@@ -32,7 +27,6 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
-
   final Widget home;
   final ThemeData theme;
 
@@ -62,10 +56,10 @@ class MyApp extends StatelessWidget {
                   );
                 },
                 onUnknownRoute: (_) {
-                return MaterialPageRoute(
-                  builder: (BuildContext context) => NotFoundPage(),
-                );
-              },
+                  return MaterialPageRoute(
+                    builder: (BuildContext context) => NotFoundPage(),
+                  );
+                },
               );
             },
           ),
