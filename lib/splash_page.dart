@@ -31,8 +31,8 @@ class _SplashPageState extends State<SplashPage> {
                   Animation<double> __,
                   Animation<double> ___,
                 ) {
-                  return _isLogin ? ContainerPage() : LoginPage();
-                  // return LoginRoute();
+                  // return _isLogin ? ContainerPage() : LoginPage();
+                  return ContainerPage();
                 },
                 transitionsBuilder: (
                   BuildContext _,
