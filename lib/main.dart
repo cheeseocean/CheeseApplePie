@@ -1,86 +1,57 @@
-import 'package:cheese_flutter/provider/providers.dart';
-import 'package:cheese_flutter/splash_page.dart';
 import 'package:flutter/material.dart';
-import 'dart:io';
-import 'package:flutter/services.dart';
-import 'package:oktoast/oktoast.dart';
-import 'package:provider/provider.dart';
-import 'package:wechat_assets_picker/wechat_assets_picker.dart';
-import 'common/global.dart';
-import 'routes/not_found_page.dart';
-import 'routes/routers.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'http/http.dart' as http;
+import 'layout.dart';
+import 'router/router.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  //初始化用户数据,如果无则登入
-  Global.init().then((e) => runApp(MyApp())).catchError((e) => print(e));
-
-  // runApp(MyApp());
-  print("runMyApp");
-  if (Platform.isAndroid) {
-    //设置Android头部的导航栏透明
-    SystemUiOverlayStyle systemUiOverlayStyle =
-        SystemUiOverlayStyle(statusBarColor: Colors.transparent);
-    SystemChrome.setSystemUIOverlayStyle(systemUiOverlayStyle);
-  }
-  AssetPicker.registerObserve();
+  http.main();
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final Widget home;
-  final ThemeData theme;
+  const MyApp({Key? key}) : super(key: key);
 
-  MyApp({this.home, this.theme});
   @override
   Widget build(BuildContext context) {
-    print("MyApp build");
-    return OKToast(
-        child: MultiProvider(
-          providers: [
-            ChangeNotifierProvider.value(value: UserModel()),
-            ChangeNotifierProvider.value(value: ThemeModel())
-          ],
-          child: Consumer<ThemeModel>(
-            builder: (context, provider, child) {
-              return MaterialApp(
-                theme: theme ?? provider.getTheme(),
-                darkTheme: provider.getTheme(isDarkMode: true),
-                themeMode: provider.getThemeMode(),
-                home: const SplashPage(),
-                //注册fluro Router
-                onGenerateRoute: Routers.router.generator,
-                builder: (BuildContext c, Widget w) {
-                  return ScrollConfiguration(
-                    behavior: const NoGlowScrollBehavior(),
-                    child: w,
-                  );
-                },
-                onUnknownRoute: (_) {
-                  return MaterialPageRoute(
-                    builder: (BuildContext context) => NotFoundPage(),
-                  );
-                },
-              );
-            },
-          ),
+    return ScreenUtilInit(
+      designSize: const Size(375, 667),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: () => MaterialApp(
+        initialRoute: '/register',
+        debugShowCheckedModeBanner: false,
+        routes: routes,
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+          // ScreenUtil().setWidth(540)  (sdk>=2.6 : 540.w)   //根据屏幕宽度适配尺寸
+          // ScreenUtil().setHeight(200) (sdk>=2.6 : 200.h)   //根据屏幕高度适配尺寸(一般根据宽度适配即可)
+          // ScreenUtil().radius(200)    (sdk>=2.6 : 200.r)   //根据宽度或高度中的较小者进行调整
+          // ScreenUtil().setSp(24)      (sdk>=2.6 : 24.sp)   //适配字体
+          textTheme: TextTheme(button: TextStyle(fontSize: 15.sp)),
         ),
-        backgroundColor: Colors.black54,
-        textPadding:
-            const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10.0),
-        radius: 20.0,
-        position: ToastPosition.bottom);
+        builder: EasyLoading.init(),
+        // builder: (context, widget) {
+        //   ScreenUtil.setContext(context);
+        //   return MediaQuery(
+        //     data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+        //     child: widget!,
+        //   );
+        // },
+        // home: const LayoutPage(),
+      ),
+    );
+
+    return MaterialApp(
+      initialRoute: '/login',
+      routes: routes,
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        // textTheme: TextTheme(button: TextStyle(fontSize: 45.sp)),
+      ),
+      // home: const LayoutPage(),
+      // builder: EasyLoading.init(),
+    );
   }
-
-  // return MaterialApp(
-  //   home: ContainerPage(),
-  // );
-}
-
-class NoGlowScrollBehavior extends ScrollBehavior {
-  const NoGlowScrollBehavior();
-
-  @override
-  Widget buildViewportChrome(
-          BuildContext context, Widget child, AxisDirection axisDirection) =>
-      child;
 }
