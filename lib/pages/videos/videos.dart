@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/common/utils.dart';
+
+
+import '../../http/http.dart';
 
 class VideosPage extends StatefulWidget {
   const VideosPage({Key? key}) : super(key: key);
@@ -8,10 +12,31 @@ class VideosPage extends StatefulWidget {
 }
 
 class _VideosPageState extends State<VideosPage> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Text('videos'),
+      body: Container(
+        padding: EdgeInsets.only(top: 50),
+        child: Column(
+          children: [
+            // Expanded(
+            //   child: Container(
+            //     child: quill.QuillEditor.basic(
+            //       controller: _quillShowCtr!,
+            //       readOnly: true,
+            //     ),
+            //   ),
+            // ),
+            ElevatedButton(
+              onPressed: () {
+
+              },
+              child: Text('提交'),
+            )
+          ],
+        ),
+      ),
     );
   }
 }

@@ -1,34 +1,52 @@
+import 'dart:async';
+
 import 'package:flutter_easyloading/flutter_easyloading.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+
+void showToast(String msg) {
+  Fluttertoast.showToast(
+    msg: msg,
+    webPosition: 'center',
+    gravity: ToastGravity.CENTER,
+  );
+}
 
 class Loading {
   bool _closed = true;
-  bool _autoOpen = true; // 是否在发请求时自动开启loading
+  bool autoOpen = true; // 是否在发请求时自动开启loading
   bool _manual = false; // 是否手动关闭loading
 
   open({manual = false, status = '加载中...'}) {
-    EasyLoading.show(status: status, maskType: EasyLoadingMaskType.black);
+    // EasyLoading.show(status: status, maskType: EasyLoadingMaskType.black);
+    Fluttertoast.showToast(
+      msg: "加载中...",
+      webPosition: 'center',
+      gravity: ToastGravity.CENTER,
+    );
     _closed = false;
     _manual = manual;
   }
 
   close() {
-    EasyLoading.dismiss();
+    // EasyLoading.dismiss();
+    // Fluttertoast.cancel();
     _closed = true;
     _manual = false;
-    _autoOpen = true;
+    autoOpen = true;
   }
 
-  bool getClosed() => _closed;
+  bool get closed => _closed;
 
-  void setAutoOpen(bool v) {
-    _autoOpen = v;
-  }
+  bool get manual => _manual;
+}
 
-  bool getAutoOpen() {
-    return _autoOpen;
-  }
-
-  bool getManual() {
-    return _manual;
-  }
+// 节流
+Function() throttle(Function() cb, [milliseconds = 300]) {
+  bool flag = false;
+  return () {
+    if (flag) return;
+    flag = true;
+    cb();
+    Timer(Duration(milliseconds: milliseconds), () => flag = false);
+  };
 }

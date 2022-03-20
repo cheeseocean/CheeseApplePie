@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application/states/states.dart';
+import 'package:provider/provider.dart';
 import '../pages/index/index.dart';
 import '../pages/community/community.dart';
 import '../pages/videos/videos.dart';
@@ -13,7 +15,7 @@ class LayoutPage extends StatefulWidget {
 }
 
 class LayoutPageState extends State<LayoutPage> {
-  int _currentIndex = 4;
+  int _currentIndex = 3;
   final _items = [
     const BottomNavigationBarItem(icon: Icon(Icons.set_meal), label: '首页'),
     const BottomNavigationBarItem(icon: Icon(Icons.padding), label: '云社区'),
@@ -27,15 +29,21 @@ class LayoutPageState extends State<LayoutPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: BottomNavigationBar(
-        items: _items,
-        unselectedItemColor: Colors.black,
-        showUnselectedLabels: true,
-        unselectedLabelStyle: const TextStyle(color: Colors.black),
-        backgroundColor: Colors.blue,
-        fixedColor: Colors.blue,
-        currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
-      ),
+          items: _items,
+          unselectedItemColor: Colors.black,
+          showUnselectedLabels: true,
+          unselectedLabelStyle: const TextStyle(color: Colors.black),
+          backgroundColor: Colors.blue,
+          fixedColor: Colors.blue,
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            UserState userState = Provider.of(context, listen: false);
+            if (!userState.login) {
+              Navigator.pushNamed(context, '/login');
+              return;
+            }
+            setState(() => _currentIndex = index);
+          }),
       // appBar: AppBar(
       //   title: const Text('bar'),
       // ),
