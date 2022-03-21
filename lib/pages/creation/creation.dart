@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
-
 import 'package:dio/dio.dart';
-import 'package:fijkplayer/fijkplayer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application/common/consts.dart';
@@ -10,15 +8,13 @@ import 'package:flutter_application/common/utils.dart';
 import 'package:flutter_application/http/urls.dart';
 import 'package:flutter_application/models/model.dart';
 import 'package:flutter_application/pages/creation/creation-model.dart';
-import 'package:flutter_application/widgets/text-fields.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
-import 'package:photo_view/photo_view.dart';
-import 'package:photo_view/photo_view_gallery.dart';
 import '../../http/http.dart';
 import '../../widgets/video.dart';
+import 'creation-widget.dart';
 
 class CreationPage extends StatefulWidget {
   const CreationPage({Key? key}) : super(key: key);
@@ -29,9 +25,10 @@ class CreationPage extends StatefulWidget {
 
 class _CreationPageState extends State<CreationPage> {
   final TextEditingController _contentCtr = TextEditingController();
-  final _FormParams _formParams = _FormParams(content: '', images: [], videos: []);
-  List<_FileInfo> _fileInfos = [];
+  final _FormParams _formParams = _FormParams();
+  List<FileInfo> _fileInfos = [];
   final quill.QuillController _quillCtr = quill.QuillController.basic();
+  final GlobalKey<TypeRadioState> _radioKey = GlobalKey();
 
   @override
   void initState() {
@@ -59,7 +56,27 @@ class _CreationPageState extends State<CreationPage> {
                         height: 300.h,
                         child: Column(
                           children: [
-                            quill.QuillToolbar.basic(controller: _quillCtr),
+                            quill.QuillToolbar.basic(
+                              controller: _quillCtr,
+                              mediaPickSettingSelector: ,
+                              onImagePickCallback: (file) {
+                                print('dfadfffffffffffffffffffffffffffffffffffff');
+                                print(file.path);
+                                return Future.value(file.path);
+                              },
+                              // filePickImpl: (context) {
+                              //   print('00000000000000000000000000000000000000000000000000000000000000000');
+                              //   return Future.value('');
+                              // },
+                              onVideoPickCallback: (file) {
+                                print('dfadfffffffffffffffffffffffffffffffffffff---video');
+                                return Future.value(file.path);
+                              },
+                              // webVideoPickImpl: (cb) {
+                              //   print('dfadfffffffffffffffffffffffffffffffffffff---video impl');
+                              //   return Future.value('');
+                              // },
+                            ),
                             Expanded(
                               child: Container(
                                 decoration: BoxDecoration(border: Border.all(color: Colors.black)),
@@ -81,9 +98,9 @@ class _CreationPageState extends State<CreationPage> {
                         for (AssetEntity file in files) {
                           String path = (await file.file)!.path;
                           if (file.type == AssetType.image) {
-                            _fileInfos.add(_FileInfo(type: file.type, file: file, path: path));
+                            _fileInfos.add(FileInfo(type: file.type, file: file, path: path));
                           } else if (file.type == AssetType.video) {
-                            _fileInfos.add(_FileInfo(type: file.type, file: file, path: path));
+                            _fileInfos.add(FileInfo(type: file.type, file: file, path: path));
                           }
                         }
                         setState(() {});
@@ -99,7 +116,7 @@ class _CreationPageState extends State<CreationPage> {
                           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 3, mainAxisSpacing: 3.w, crossAxisSpacing: 3.w, childAspectRatio: 1),
                           itemBuilder: (context, i) {
-                            _FileInfo fileInfo = _fileInfos[i];
+                            FileInfo fileInfo = _fileInfos[i];
                             Widget widget = fileInfo.type == AssetType.image
                                 ? Image(
                                     image: AssetEntityImageProvider(fileInfo.file as AssetEntity, isOriginal: false),
@@ -121,8 +138,8 @@ class _CreationPageState extends State<CreationPage> {
                                   PopupMenuItem(
                                     height: 30.w,
                                     onTap: () {
-                                      Clipboard.setData(ClipboardData(text: 'http://$host:$port'));
-                                      showToast('复制链接成功');
+                                      Clipboard.setData(ClipboardData(text: 'http://$host:$port${_fileInfos[i].path}'));
+                                      showToast('复制链接成功（该链接为临时地址）');
                                     },
                                     child: Text(
                                       '复制链接',
@@ -147,7 +164,9 @@ class _CreationPageState extends State<CreationPage> {
                             ]);
                           }),
                     ),
-                    // Gallery(_fileInfos),
+                    TypeRadio(
+                      key: _radioKey,
+                    ),
                     ElevatedButton(
                       onPressed: () async {
                         quill.Delta delta = _quillCtr.document.toDelta();
@@ -155,27 +174,29 @@ class _CreationPageState extends State<CreationPage> {
                           showToast('请输入内容');
                           return;
                         }
+                        _formParams.contentType = _radioKey.currentState?.groupValue as String;
+                        if (_formParams.contentType == PostContentType.normal) {}
                         return;
-                        final List<MultipartFile> images = [];
-                        final List<MultipartFile> videos = [];
-                        for (_FileInfo fileInfo in _fileInfos) {
-                          if (fileInfo.type == AssetType.image) {
-                            images.add(await MultipartFile.fromFile(fileInfo.path));
-                          } else if (fileInfo.type == AssetType.video) {
-                            videos.add(await MultipartFile.fromFile(fileInfo.path));
-                          }
-                        }
-                        print(images);
-                        FormData formData = FormData.fromMap({'content': _formParams.content, 'images': images, 'videos': videos});
-                        if (_formParams.content == '' && images.isEmpty && videos.isEmpty) {
-                          Fluttertoast.showToast(msg: '请发点啥吧');
-                          return;
-                        }
-                        Response res = await dio.post(createPostUrl, data: formData);
-                        ResponseModel responseModel = ResponseModel.fromJson(res.data);
-                        Fluttertoast.showToast(msg: responseModel.message);
+                        // final List<MultipartFile> images = [];
+                        // final List<MultipartFile> videos = [];
+                        // for (FileInfo fileInfo in _fileInfos) {
+                        //   if (fileInfo.type == AssetType.image) {
+                        //     images.add(await MultipartFile.fromFile(fileInfo.path));
+                        //   } else if (fileInfo.type == AssetType.video) {
+                        //     videos.add(await MultipartFile.fromFile(fileInfo.path));
+                        //   }
+                        // }
+                        // print(images);
+                        // FormData formData = FormData.fromMap({'content': _formParams.content, 'images': images, 'videos': videos});
+                        // if (_formParams.content == '' && images.isEmpty && videos.isEmpty) {
+                        //   Fluttertoast.showToast(msg: '请发点啥吧');
+                        //   return;
+                        // }
+                        // Response res = await dio.post(createPostUrl, data: formData);
+                        // ResponseModel responseModel = ResponseModel.fromJson(res.data);
+                        // Fluttertoast.showToast(msg: responseModel.message);
                       },
-                      child: const Text('提交'),
+                      child: const Text('发布'),
                     ),
                   ],
                 ),
@@ -189,94 +210,16 @@ class _CreationPageState extends State<CreationPage> {
 }
 
 class _FormParams {
-  String content;
-  List<AssetEntity> images;
-  List<AssetEntity> videos;
-
-  _FormParams({required this.content, required this.images, required this.videos});
+  String content = '';
+  List<String> images = [];
+  List<String> videos = [];
+  String contentType = PostContentType.normal;
 
   Map<String, dynamic> toJson() {
     return {
       "content": content,
+      "images": images,
+      "videos": videos,
     };
-  }
-}
-
-class _FileInfo {
-  AssetType type;
-  AssetEntity? file;
-  String path;
-
-  _FileInfo({required this.type, this.file, required this.path});
-}
-
-class Gallery extends StatelessWidget {
-  final List<_FileInfo> _items;
-  final int _index;
-  late List<GlobalKey?> _videoKeys;
-  late int _curIndex;
-
-  Gallery(this._items, this._index, {Key? key}) : super(key: key) {
-    _videoKeys = List.filled(_items.length, null);
-    _curIndex = _index;
-    for (int i = 0; i < _items.length; i++) {
-      if (_items[i].type == AssetType.video) {
-        _videoKeys[i] = GlobalKey();
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          PhotoViewGallery.builder(
-            scrollPhysics: const BouncingScrollPhysics(),
-            builder: (BuildContext context, int index) {
-              _FileInfo fileInfo = _items[index];
-              return fileInfo.type == AssetType.image
-                  ? PhotoViewGalleryPageOptions(
-                      imageProvider: AssetEntityImageProvider(_items[index].file as AssetEntity, isOriginal: false),
-                      heroAttributes: PhotoViewHeroAttributes(tag: _items[index].path),
-                    )
-                  : PhotoViewGalleryPageOptions.customChild(
-                      child: NormalPlayer(
-                      fileInfo.path,
-                      key: _videoKeys[index],
-                    ));
-            },
-            itemCount: _items.length,
-            loadingBuilder: (context, event) => Center(
-              child: Container(
-                width: 20.0,
-                height: 20.0,
-                child: CircularProgressIndicator(
-                  value: event == null ? 0 : event.cumulativeBytesLoaded / event.expectedTotalBytes!,
-                ),
-              ),
-            ),
-            pageController: PageController(initialPage: _index),
-            onPageChanged: (i) {
-              (_videoKeys[_curIndex]!.currentState as NormalPlayerState).pause();
-              _curIndex = i;
-            },
-          ),
-          Positioned(
-            //右上角关闭按钮
-            right: 10,
-            top: MediaQuery.of(context).padding.top,
-            child: IconButton(
-              icon: const Icon(
-                Icons.close,
-                size: 30,
-                color: Colors.white,
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          )
-        ],
-      ),
-    );
   }
 }

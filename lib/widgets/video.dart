@@ -25,9 +25,9 @@ class _SmallPlayerState extends State<SmallPlayer> {
 
   @override
   void dispose() {
-    super.dispose();
     player.release();
     print('--------------------------------------------------------------------------------------------------------dispose'); // todo
+    super.dispose();
   }
 
   @override
@@ -47,13 +47,12 @@ class _SmallPlayerState extends State<SmallPlayer> {
               fit: FijkFit.cover,
               player: player,
             ),
-            widget.showIcon
-                ? const Icon(
-                    Icons.play_circle_outlined,
-                    color: Colors.white,
-                    size: 40,
-                  )
-                : const SizedBox.shrink()
+            if (widget.showIcon)
+              const Icon(
+                Icons.play_circle_outlined,
+                color: Colors.white,
+                size: 40,
+              ),
           ],
         ),
       ),
@@ -89,11 +88,6 @@ class NormalPlayerState extends State<NormalPlayer> {
     super.deactivate();
     player.release();
   }
-  // @override
-  // void dispose() {
-  //   // super.dispose();
-  //   player.release();
-  // }
 
   @override
   Widget build(BuildContext context) {
