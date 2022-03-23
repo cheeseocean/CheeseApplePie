@@ -8,6 +8,7 @@ import 'package:flutter_application/common/utils.dart';
 import 'package:flutter_application/http/urls.dart';
 import 'package:flutter_application/models/model.dart';
 import 'package:flutter_application/pages/user/register/register-model.dart';
+import 'package:flutter_application/router/router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../../../http/http.dart';
 import '../../../widgets/text-fields.dart';
@@ -157,7 +158,7 @@ class _Register extends State<RegisterPage> {
                       if (responseModel.status != 0) {
                         return;
                       }
-                      Timer(const Duration(seconds: 1), () => Navigator.pushNamed(context, '/'));
+                      Timer(const Duration(seconds: 1), () => Navigator.pushNamed(context, homePath));
                     },
                     child: const Text('注册')),
                 SizedBox(

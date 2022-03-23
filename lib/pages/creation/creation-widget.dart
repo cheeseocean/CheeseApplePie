@@ -1,11 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_application/pages/creation/creation-model.dart';
 import 'package:flutter_application/widgets/video.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
+
+import '../../common/consts.dart';
+import '../../common/utils.dart';
+import '../../http/http.dart';
 
 class Gallery extends StatelessWidget {
   final List<FileInfo> _items;
@@ -17,7 +24,7 @@ class Gallery extends StatelessWidget {
     _videoKeys = List.filled(_items.length, null);
     _curIndex = _index;
     for (int i = 0; i < _items.length; i++) {
-      if (_items[i].type == AssetType.video) {
+      if (_items[i].file.type == AssetType.video) {
         _videoKeys[i] = GlobalKey();
       }
     }
@@ -32,7 +39,7 @@ class Gallery extends StatelessWidget {
             scrollPhysics: const BouncingScrollPhysics(),
             builder: (BuildContext context, int index) {
               FileInfo fileInfo = _items[index];
-              return fileInfo.type == AssetType.image
+              return fileInfo.file.type == AssetType.image
                   ? PhotoViewGalleryPageOptions(
                       imageProvider: AssetEntityImageProvider(_items[index].file as AssetEntity, isOriginal: false),
                       heroAttributes: PhotoViewHeroAttributes(tag: _items[index].path),
@@ -121,10 +128,83 @@ class TypeRadioState extends State<TypeRadio> {
                 value: PostContentType.normal,
                 groupValue: groupValue,
                 onChanged: (String? value) => setState(() => groupValue = PostContentType.normal)),
-            const Text('普通文本格式（自动将图片插入文本下方）')
+            const Text('普通文本格式（自动布局）')
           ],
         )
       ],
+    );
+  }
+}
+
+class PhotoAndVideoList extends StatefulWidget {
+  final List<FileInfo> fileInfos;
+
+  const PhotoAndVideoList(this.fileInfos, {Key? key}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => _PhotoAndVideoListState();
+}
+
+class _PhotoAndVideoListState extends State<PhotoAndVideoList> {
+  @override
+  Widget build(BuildContext context) {
+    List<FileInfo> fileInfos = widget.fileInfos;
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 8.w),
+      child: GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: fileInfos.length,
+          gridDelegate:
+              SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisSpacing: 3.w, crossAxisSpacing: 3.w, childAspectRatio: 1),
+          itemBuilder: (context, i) {
+            FileInfo fileInfo = fileInfos[i];
+            Widget widget = fileInfo.file.type == AssetType.image
+                ? Image(
+                    image: AssetEntityImageProvider(fileInfo.file as AssetEntity, isOriginal: false),
+                    fit: BoxFit.cover,
+                  )
+                : SmallPlayer(
+                    fileInfo.path,
+                    key: ValueKey(fileInfo.path),
+                  );
+            return Stack(alignment: Alignment.center, fit: StackFit.expand, children: [
+              widget,
+              Container(decoration: const BoxDecoration(color: Color(0x33000000))),
+              PopupMenuButton(
+                icon: const Icon(
+                  Icons.more_vert,
+                  color: Colors.white,
+                ),
+                itemBuilder: (BuildContext context) => [
+                  PopupMenuItem(
+                    height: 30.w,
+                    onTap: () {
+                      Clipboard.setData(ClipboardData(text: 'http://$host:$port${fileInfos[i].path}'));
+                      showToast('复制链接成功（该链接为临时地址）');
+                    },
+                    child: Text(
+                      '复制链接',
+                      style: TextStyle(color: XColor.primary),
+                    ),
+                  ),
+                  PopupMenuItem(
+                    height: 30.w,
+                    onTap: () {
+                      Timer(const Duration(milliseconds: 10),
+                          () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => Gallery(fileInfos, i))));
+                    },
+                    child: Text('查看大图', style: TextStyle(color: XColor.primary)),
+                  ),
+                  PopupMenuItem(
+                    height: 30.w,
+                    onTap: () => setState(() => fileInfos.removeAt(i)),
+                    child: Text('删除图片', style: TextStyle(color: XColor.primary)),
+                  ),
+                ],
+              ),
+            ]);
+          }),
     );
   }
 }

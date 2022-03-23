@@ -1,3 +1,4 @@
+import 'package:flutter_application/models/model.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
 // class CreatePostResModel extends ResponseModel {
@@ -8,15 +9,29 @@ import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 //   }
 // }
 
+class UploadResModel extends ResponseModel {
+  late List<String> data;
+
+  UploadResModel.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
+    data = List.from(json['data']);
+  }
+}
+
 class PostContentType {
   static const String normal = 'quill-normal';
   static const String rich = 'quill-rich';
 }
 
 class FileInfo {
-  AssetType type;
-  AssetEntity? file;
+  AssetEntity file;
   String path;
 
-  FileInfo({required this.type, this.file, required this.path});
+  FileInfo({required this.file, required this.path});
+}
+
+class QuillFileInfo {
+  AssetType type;
+  String path;
+
+  QuillFileInfo({required this.type, required this.path});
 }

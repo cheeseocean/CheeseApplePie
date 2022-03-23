@@ -5,6 +5,7 @@ import 'package:flutter_application/common/utils.dart';
 import 'package:flutter_application/http/urls.dart';
 import 'package:flutter_application/models/model.dart';
 import 'package:flutter_application/pages/user/login/login-model.dart';
+import 'package:flutter_application/router/router.dart';
 import 'package:flutter_application/states/states.dart';
 import 'package:provider/provider.dart';
 import '../../../common/consts.dart';
@@ -80,7 +81,7 @@ class _LoginPageState extends State<LoginPage> {
                       }
                       UserState userState = Provider.of(context, listen: false);
                       userState.login = true;
-                      Timer(const Duration(seconds: 1), () => Navigator.pushNamed(context, '/'));
+                      Timer(const Duration(seconds: 1), () => Navigator.pushNamed(context, homePath));
                     } on DioError catch (e) {
                       print(e);
                     }

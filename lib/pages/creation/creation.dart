@@ -2,18 +2,16 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_application/common/consts.dart';
 import 'package:flutter_application/common/utils.dart';
 import 'package:flutter_application/http/urls.dart';
 import 'package:flutter_application/models/model.dart';
 import 'package:flutter_application/pages/creation/creation-model.dart';
+import 'package:flutter_application/router/router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import '../../http/http.dart';
-import '../../widgets/video.dart';
 import 'creation-widget.dart';
 
 class CreationPage extends StatefulWidget {
@@ -27,6 +25,9 @@ class _CreationPageState extends State<CreationPage> {
   final TextEditingController _contentCtr = TextEditingController();
   final _FormParams _formParams = _FormParams();
   List<FileInfo> _fileInfos = [];
+
+  // List<QuillFileInfo> _quillFileInfo = [];
+  Map<String, AssetType> _fieldFileMap = Map();
   final quill.QuillController _quillCtr = quill.QuillController.basic();
   final GlobalKey<TypeRadioState> _radioKey = GlobalKey();
 
@@ -58,24 +59,16 @@ class _CreationPageState extends State<CreationPage> {
                           children: [
                             quill.QuillToolbar.basic(
                               controller: _quillCtr,
-                              mediaPickSettingSelector: ,
                               onImagePickCallback: (file) {
-                                print('dfadfffffffffffffffffffffffffffffffffffff');
-                                print(file.path);
+                                _fieldFileMap.putIfAbsent(file.path, () => AssetType.image);
+                                // _quillFileInfo.add(QuillFileInfo(type: AssetType.image, path: file.path));
                                 return Future.value(file.path);
                               },
-                              // filePickImpl: (context) {
-                              //   print('00000000000000000000000000000000000000000000000000000000000000000');
-                              //   return Future.value('');
-                              // },
                               onVideoPickCallback: (file) {
-                                print('dfadfffffffffffffffffffffffffffffffffffff---video');
+                                _fieldFileMap.putIfAbsent(file.path, () => AssetType.video);
+                                // _quillFileInfo.add(QuillFileInfo(type: AssetType.video, path: file.path));
                                 return Future.value(file.path);
                               },
-                              // webVideoPickImpl: (cb) {
-                              //   print('dfadfffffffffffffffffffffffffffffffffffff---video impl');
-                              //   return Future.value('');
-                              // },
                             ),
                             Expanded(
                               child: Container(
@@ -97,105 +90,19 @@ class _CreationPageState extends State<CreationPage> {
                         _fileInfos = [];
                         for (AssetEntity file in files) {
                           String path = (await file.file)!.path;
-                          if (file.type == AssetType.image) {
-                            _fileInfos.add(FileInfo(type: file.type, file: file, path: path));
-                          } else if (file.type == AssetType.video) {
-                            _fileInfos.add(FileInfo(type: file.type, file: file, path: path));
-                          }
+                          _fileInfos.add(FileInfo(file: file, path: path));
+                          // _quillCtr.document.insert(_quillCtr.document.length - 1, quill.Embeddable.fromJson({type: path}));
                         }
                         setState(() {});
                       },
-                      child: const Text('选择图片'),
+                      child: const Text('选择图片或视频'),
                     ),
-                    Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8.w),
-                      child: GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: _fileInfos.length,
-                          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 3, mainAxisSpacing: 3.w, crossAxisSpacing: 3.w, childAspectRatio: 1),
-                          itemBuilder: (context, i) {
-                            FileInfo fileInfo = _fileInfos[i];
-                            Widget widget = fileInfo.type == AssetType.image
-                                ? Image(
-                                    image: AssetEntityImageProvider(fileInfo.file as AssetEntity, isOriginal: false),
-                                    fit: BoxFit.cover,
-                                  )
-                                : SmallPlayer(
-                                    fileInfo.path,
-                                    key: ValueKey(fileInfo.path),
-                                  );
-                            return Stack(alignment: Alignment.center, fit: StackFit.expand, children: [
-                              widget,
-                              Container(decoration: const BoxDecoration(color: Color(0x33000000))),
-                              PopupMenuButton(
-                                icon: const Icon(
-                                  Icons.more_vert,
-                                  color: Colors.white,
-                                ),
-                                itemBuilder: (BuildContext context) => [
-                                  PopupMenuItem(
-                                    height: 30.w,
-                                    onTap: () {
-                                      Clipboard.setData(ClipboardData(text: 'http://$host:$port${_fileInfos[i].path}'));
-                                      showToast('复制链接成功（该链接为临时地址）');
-                                    },
-                                    child: Text(
-                                      '复制链接',
-                                      style: TextStyle(color: XColor.primary),
-                                    ),
-                                  ),
-                                  PopupMenuItem(
-                                    height: 30.w,
-                                    onTap: () {
-                                      Timer(const Duration(milliseconds: 10),
-                                          () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => Gallery(_fileInfos, i))));
-                                    },
-                                    child: Text('查看大图', style: TextStyle(color: XColor.primary)),
-                                  ),
-                                  PopupMenuItem(
-                                    height: 30.w,
-                                    onTap: () => setState(() => _fileInfos.removeAt(i)),
-                                    child: Text('删除图片', style: TextStyle(color: XColor.primary)),
-                                  ),
-                                ],
-                              ),
-                            ]);
-                          }),
-                    ),
+                    PhotoAndVideoList(_fileInfos),
                     TypeRadio(
                       key: _radioKey,
                     ),
                     ElevatedButton(
-                      onPressed: () async {
-                        quill.Delta delta = _quillCtr.document.toDelta();
-                        if (delta.length == 0 || (delta.length == 1 && delta[0].value.toString().trim() == '')) {
-                          showToast('请输入内容');
-                          return;
-                        }
-                        _formParams.contentType = _radioKey.currentState?.groupValue as String;
-                        if (_formParams.contentType == PostContentType.normal) {}
-                        return;
-                        // final List<MultipartFile> images = [];
-                        // final List<MultipartFile> videos = [];
-                        // for (FileInfo fileInfo in _fileInfos) {
-                        //   if (fileInfo.type == AssetType.image) {
-                        //     images.add(await MultipartFile.fromFile(fileInfo.path));
-                        //   } else if (fileInfo.type == AssetType.video) {
-                        //     videos.add(await MultipartFile.fromFile(fileInfo.path));
-                        //   }
-                        // }
-                        // print(images);
-                        // FormData formData = FormData.fromMap({'content': _formParams.content, 'images': images, 'videos': videos});
-                        // if (_formParams.content == '' && images.isEmpty && videos.isEmpty) {
-                        //   Fluttertoast.showToast(msg: '请发点啥吧');
-                        //   return;
-                        // }
-                        // Response res = await dio.post(createPostUrl, data: formData);
-                        // ResponseModel responseModel = ResponseModel.fromJson(res.data);
-                        // Fluttertoast.showToast(msg: responseModel.message);
-                      },
+                      onPressed: _onSubmit,
                       child: const Text('发布'),
                     ),
                   ],
@@ -206,6 +113,68 @@ class _CreationPageState extends State<CreationPage> {
         ],
       ),
     );
+  }
+
+  // 发布
+  void _onSubmit() async {
+    return print(Navigator.of(context).pushNamed('/a'));
+    quill.Delta delta = _quillCtr.document.toDelta();
+    if (delta.length == 0 || (delta.length == 1 && delta[0].value.toString().trim() == '') && _fileInfos.isEmpty) {
+      return showToast('请输入内容');
+    }
+    _formParams.contentType = _radioKey.currentState?.groupValue as String;
+    List list = _quillCtr.document.toDelta().toList();
+    List<String> paths = [];
+    if (_formParams.contentType == PostContentType.normal) {
+      // 自动布局
+      bool res = list.every((element) {
+        var value = element.value;
+        if (value is! Map) return true;
+        return !(value.containsKey('image') || value.containsKey('video'));
+      });
+      if (!res) return showToast('自动布局方式不能在输入框中插入图片或视频哦');
+      for (FileInfo fileInfo in _fileInfos) {
+        paths.add(fileInfo.path);
+      }
+    } else {
+      // 自定义布局
+      for (var element in list) {
+        var value = element.value;
+        if (value is! Map) return;
+        if (value.containsKey('image')) {
+          paths.add(value['image']);
+        } else if (value.containsKey('video')) {
+          paths.add(value['video']);
+        }
+      }
+    }
+    _formParams.images = [];
+    _formParams.videos = [];
+    if (paths.isNotEmpty) {
+      // 如果有文件则上传
+      List<MultipartFile> assets = [];
+      for (String path in paths) {
+        assets.add(await MultipartFile.fromFile(path));
+      }
+      FormData formData = FormData.fromMap({'assets': assets});
+      Response res = await dio.post(uploadUrl, data: formData);
+      UploadResModel uploadResModel = UploadResModel.fromJson(res.data);
+      if (uploadResModel.status != 0) return showToast(uploadResModel.message);
+      int i = 0;
+      for (String path in uploadResModel.data) {
+        if (_fieldFileMap[path] == AssetType.image) {
+          _formParams.images.add('$path?i=${i++}');
+        } else {
+          _formParams.videos.add('$path?i=${i++}');
+        }
+      }
+    }
+    _fieldFileMap.clear();
+    _formParams.content = _quillCtr.document.toDelta().toJson().toString();
+    Response res2 = await dio.post(createPostUrl, data: _formParams);
+    ResponseModel responseModel = ResponseModel.fromJson(res2.data);
+    Fluttertoast.showToast(msg: responseModel.message);
+    if (responseModel.status == 0) Navigator.of(context).pushNamed(homePath, arguments: 1);
   }
 }
 
@@ -218,6 +187,7 @@ class _FormParams {
   Map<String, dynamic> toJson() {
     return {
       "content": content,
+      "contentType": contentType,
       "images": images,
       "videos": videos,
     };
