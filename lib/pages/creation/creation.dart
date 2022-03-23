@@ -117,7 +117,7 @@ class _CreationPageState extends State<CreationPage> {
 
   // 发布
   void _onSubmit() async {
-    return print(Navigator.of(context).pushNamed('/a'));
+    return nestedRoutePush('/home/community');
     quill.Delta delta = _quillCtr.document.toDelta();
     if (delta.length == 0 || (delta.length == 1 && delta[0].value.toString().trim() == '') && _fileInfos.isEmpty) {
       return showToast('请输入内容');

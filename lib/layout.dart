@@ -9,15 +9,17 @@ import '../pages/creation/creation.dart';
 import '../pages/personal/personal.dart';
 
 class LayoutPage extends StatefulWidget {
-  Widget? child;
-  int? index;
-  LayoutPage([this.child,this.index, Key? key]) : super(key: key);
+  // Widget? child;
+  // int? index;
+
+  // LayoutPage([this.child, this.index, Key? key]) : super(key: key);
+  LayoutPage({Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => LayoutPageState();
 }
 
-class LayoutPageState extends State<LayoutPage> with RoutePage {
+class LayoutPageState extends RoutePage<LayoutPage> {
   int _currentIndex = 3;
   final _items = [
     const BottomNavigationBarItem(icon: Icon(Icons.set_meal), label: '首页'),
@@ -27,6 +29,8 @@ class LayoutPageState extends State<LayoutPage> with RoutePage {
     const BottomNavigationBarItem(icon: Icon(Icons.baby_changing_station), label: '个人中心')
   ];
   final paths = ['/home/index', '/home/community', '/home/videos', '/home/creation', '/home/personal'];
+
+  // final paths = ['index', 'community', 'videos', 'creation', 'personal'];
   final tabPages = [const IndexPage(), const CommunityPage(), const VideosPage(), const CreationPage(), const PersonalPage()];
 
   @override
@@ -41,21 +45,23 @@ class LayoutPageState extends State<LayoutPage> with RoutePage {
           unselectedLabelStyle: const TextStyle(color: Colors.black),
           backgroundColor: Colors.blue,
           fixedColor: Colors.blue,
-          currentIndex: widget.index ?? _currentIndex,
+          // currentIndex: widget.index ?? _currentIndex,
+          currentIndex: _currentIndex,
           onTap: (index) {
             UserState userState = Provider.of(context, listen: false);
             if (!userState.login) {
-              Navigator.pushNamed(context, '/login');
-              return;
+              // Navigator.pushNamed(context, '/login');
+              // return;
             }
-            Navigator.pushNamed(context, paths[index], arguments: index);
-            setState(() => _currentIndex = index);
+            nestedRoutePush(paths[index]);
+            // Navigator.pushNamed(context, paths[index], arguments: index);
+            // setState(() => _currentIndex = index);
           }),
       // appBar: AppBar(
       //   title: const Text('bar'),
       // ),
-      // body: tabPages[_currentIndex],
-      body: widget.child,
+      body: tabPages[_currentIndex],
+      // body: widget.child,
       drawer: Drawer(
         child: ListView(
           children: const [
@@ -70,6 +76,6 @@ class LayoutPageState extends State<LayoutPage> with RoutePage {
 
   @override
   void push(path) {
-    // TODO: implement push
+    setState(() => _currentIndex = paths.indexOf(path));
   }
 }

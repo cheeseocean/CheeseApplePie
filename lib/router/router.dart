@@ -11,29 +11,34 @@ import '../pages/user/register/register.dart';
 const homePath = '/home';
 const loginPath = '/login';
 const registerPath = '/register';
+// nested route path
+const indexPath = 'index';
+const communityPath = 'community';
+const videosPath = 'videos';
+const creationPath = 'creation';
+const personalPath = 'personal';
 
-abstract class RoutePage<T> extends State<StatefulWidget> {
-
+abstract class RoutePage<T extends StatefulWidget> extends State<T> {
   void push(String path);
 }
 
-GlobalKey layoutKey = GlobalKey();
-Map<String, GlobalKey<RoutePage>> routeKeys = {homePath.substring(1): layoutKey};
+Map<String, GlobalKey<RoutePage>> routeKeys = {homePath: GlobalKey<LayoutPageState>()};
 
-void routePush(String path) {
+void nestedRoutePush(String path) {
   List<String> paths = path.substring(1).split('/');
-  routeKeys[paths[0]].currentState
+  assert(paths.length == 2);
+  routeKeys['/' + paths[0]]?.currentState?.push(path);
 }
 
 Map<String, Widget Function(BuildContext)> routes = {
-  homePath: (context) => LayoutPage(),
+  homePath: (context) => LayoutPage(key: routeKeys[homePath]),
   loginPath: (context) => const LoginPage(),
   registerPath: (context) => const RegisterPage(),
 };
 
 Map otherRoutes = {
   homePath.substring(1): {
-    'widget': (Widget child, int index) => LayoutPage(child, index),
+    'widget': (Widget child, int index) => LayoutPage(),
     'children': {
       'index': {'widget': () => const IndexPage()},
       'community': {'widget': () => const CommunityPage()},
@@ -44,18 +49,21 @@ Map otherRoutes = {
   }
 };
 
-CustomRoute index = CustomRoute('index', (child) => IndexPage());
-CustomRoute community = CustomRoute('community', (child) => IndexPage());
-CustomRoute videos = CustomRoute('videos', (child) => IndexPage());
-CustomRoute creation = CustomRoute('creation', (child) => IndexPage());
-CustomRoute personal = CustomRoute('personal', (child) => IndexPage());
-CustomRoute layout = CustomRoute(homePath.substring(1), (child) => LayoutPage(child),
-    Map.from({'index': index, 'community': community, 'videos': videos, 'creation': creation, 'personal': personal}));
-
 class CustomRoute {
-  String path;
   Function(Widget? child) widget;
   Map<String, CustomRoute>? children;
 
-  CustomRoute(this.path, this.widget, [this.children]);
+  CustomRoute(this.widget, [this.children]);
 }
+
+Map<String, CustomRoute> nestedRoutes = {
+  homePath: CustomRoute(
+      (child) => LayoutPage(),
+      Map.from({
+        indexPath: CustomRoute((child) => IndexPage()),
+        communityPath: CustomRoute((child) => IndexPage()),
+        videosPath: CustomRoute((child) => IndexPage()),
+        creationPath: CustomRoute((child) => IndexPage()),
+        personalPath: CustomRoute((child) => IndexPage())
+      }))
+};
