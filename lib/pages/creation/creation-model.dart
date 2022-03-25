@@ -1,14 +1,6 @@
 import 'package:flutter_application/models/model.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
-// class CreatePostResModel extends ResponseModel {
-//   CreatePostResModel({message, status, data}) : super(message: message, status: status, data: data);
-//
-//   factory CreatePostResModel.fromJson(Map<String, dynamic> json) {
-//     return ResponseModel.fromJson(json) as CreatePostResModel;
-//   }
-// }
-
 class UploadResModel extends ResponseModel {
   late List<String> data;
 
@@ -18,15 +10,17 @@ class UploadResModel extends ResponseModel {
 }
 
 class PostContentType {
+  static const String quillJson = 'quill-json';
   static const String normal = 'quill-normal';
   static const String rich = 'quill-rich';
 }
 
 class FileInfo {
-  AssetEntity file;
+  // AssetEntity file;
   String path;
+  AssetType type;
 
-  FileInfo({required this.file, required this.path});
+  FileInfo({required this.type, required this.path});
 }
 
 class QuillFileInfo {
@@ -34,4 +28,13 @@ class QuillFileInfo {
   String path;
 
   QuillFileInfo({required this.type, required this.path});
+}
+
+class PreviewData {
+  List data;
+  List<String> richPaths;
+  String contentType;
+  List<FileInfo> fileInfos;
+
+  PreviewData(this.data, this.richPaths, this.contentType, this.fileInfos);
 }

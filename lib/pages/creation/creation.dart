@@ -26,10 +26,10 @@ class _CreationPageState extends State<CreationPage> {
   final _FormParams _formParams = _FormParams();
   List<FileInfo> _fileInfos = [];
 
-  // List<QuillFileInfo> _quillFileInfo = [];
-  Map<String, AssetType> _fieldFileMap = Map();
+  final Map<String, AssetType> _fieldFileMap = Map();
   final quill.QuillController _quillCtr = quill.QuillController.basic();
-  final GlobalKey<TypeRadioState> _radioKey = GlobalKey();
+
+  // final GlobalKey<TypeRadioState> _radioKey = GlobalKey();
 
   @override
   void initState() {
@@ -73,9 +73,16 @@ class _CreationPageState extends State<CreationPage> {
                             Expanded(
                               child: Container(
                                 decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-                                child: quill.QuillEditor.basic(
+                                child: quill.QuillEditor(
                                   controller: _quillCtr,
+                                  scrollController: ScrollController(),
+                                  scrollable: true,
+                                  focusNode: FocusNode(),
+                                  autoFocus: true,
                                   readOnly: false,
+                                  expands: false,
+                                  padding: const EdgeInsets.all(5),
+                                  keyboardAppearance: Brightness.light,
                                 ),
                               ),
                             ),
@@ -88,22 +95,47 @@ class _CreationPageState extends State<CreationPage> {
                         List<AssetEntity>? files = await AssetPicker.pickAssets(context);
                         if (files == null) return;
                         _fileInfos = [];
+                        final width = (MediaQuery.of(context).size.width - 40) / 3;
+                        print(width);
                         for (AssetEntity file in files) {
                           String path = (await file.file)!.path;
-                          _fileInfos.add(FileInfo(file: file, path: path));
-                          // _quillCtr.document.insert(_quillCtr.document.length - 1, quill.Embeddable.fromJson({type: path}));
+                          _fileInfos.add(FileInfo(type: file.type, path: path));
+                          _quillCtr.document.insert(_quillCtr.document.length - 1, quill.Embeddable.fromJson({'image': path}));
+                          _quillCtr.formatText(_quillCtr.document.length - 2, 1, quill.StyleAttribute('mobileWidth: $width; mobileHeight: $width; mobileMargin: 1; mobileAlignment: center;'));
+                          print(_quillCtr.document.toDelta().toJson());
                         }
                         setState(() {});
                       },
                       child: const Text('选择图片或视频'),
                     ),
-                    PhotoAndVideoList(_fileInfos),
-                    TypeRadio(
-                      key: _radioKey,
+                    const Text(
+                      '*选择的内容将会自动插入到文本的最下方',
+                      style: TextStyle(color: Colors.red),
                     ),
-                    ElevatedButton(
-                      onPressed: _onSubmit,
-                      child: const Text('发布'),
+                    SizedBox(
+                      height: 5.w,
+                    ),
+                    PhotoAndVideoList(_fileInfos),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () async {
+                            List<String>? paths = await _formatContent();
+                            if (paths == null) return;
+                            Navigator.pushNamed(context, RoutePath.previewPost,
+                                arguments: PreviewData(_quillCtr.document.toDelta().toJson(), paths, _formParams.contentType, _fileInfos));
+                          },
+                          child: const Text('预览'),
+                        ),
+                        SizedBox(
+                          width: 20.w,
+                        ),
+                        ElevatedButton(
+                          onPressed: _onSubmit,
+                          child: const Text('发布'),
+                        )
+                      ],
                     ),
                   ],
                 ),
@@ -115,39 +147,48 @@ class _CreationPageState extends State<CreationPage> {
     );
   }
 
-  // 发布
-  void _onSubmit() async {
-    return nestedRoutePush('/home/community');
+  Future<List<String>?> _formatContent() async {
     quill.Delta delta = _quillCtr.document.toDelta();
     if (delta.length == 0 || (delta.length == 1 && delta[0].value.toString().trim() == '') && _fileInfos.isEmpty) {
-      return showToast('请输入内容');
+      showToast('请输入内容');
+      return null;
     }
-    _formParams.contentType = _radioKey.currentState?.groupValue as String;
+    // _formParams.contentType = _radioKey.currentState?.groupValue as String;
     List list = _quillCtr.document.toDelta().toList();
     List<String> paths = [];
-    if (_formParams.contentType == PostContentType.normal) {
-      // 自动布局
-      bool res = list.every((element) {
-        var value = element.value;
-        if (value is! Map) return true;
-        return !(value.containsKey('image') || value.containsKey('video'));
-      });
-      if (!res) return showToast('自动布局方式不能在输入框中插入图片或视频哦');
-      for (FileInfo fileInfo in _fileInfos) {
-        paths.add(fileInfo.path);
-      }
-    } else {
-      // 自定义布局
-      for (var element in list) {
-        var value = element.value;
-        if (value is! Map) return;
-        if (value.containsKey('image')) {
-          paths.add(value['image']);
-        } else if (value.containsKey('video')) {
-          paths.add(value['video']);
-        }
+    // if (_formParams.contentType == PostContentType.normal) {
+    //   // 自动布局
+    //   bool res = list.every((element) {
+    //     var value = element.value;
+    //     if (value is! Map) return true;
+    //     return !(value.containsKey('image') || value.containsKey('video'));
+    //   });
+    //   if (!res) {
+    //     showToast('自动布局方式不能在输入框中插入图片或视频哦');
+    //     return null;
+    //   }
+    //   for (FileInfo fileInfo in _fileInfos) {
+    //     paths.add(fileInfo.path);
+    //   }
+    // } else {
+    // 自定义布局
+    for (var element in list) {
+      var value = element.value;
+      if (value is! Map) continue;
+      if (value.containsKey('image')) {
+        paths.add(value['image']);
+      } else if (value.containsKey('video')) {
+        paths.add(value['video']);
       }
     }
+    // }
+    return paths;
+  }
+
+  // 发布
+  void _onSubmit() async {
+    List<String>? paths = await _formatContent();
+    if (paths == null) return;
     _formParams.images = [];
     _formParams.videos = [];
     if (paths.isNotEmpty) {
@@ -174,7 +215,7 @@ class _CreationPageState extends State<CreationPage> {
     Response res2 = await dio.post(createPostUrl, data: _formParams);
     ResponseModel responseModel = ResponseModel.fromJson(res2.data);
     Fluttertoast.showToast(msg: responseModel.message);
-    if (responseModel.status == 0) Navigator.of(context).pushNamed(homePath, arguments: 1);
+    if (responseModel.status == 0) Navigator.of(context).pushNamed(RoutePath.home, arguments: 1);
   }
 }
 
@@ -182,7 +223,7 @@ class _FormParams {
   String content = '';
   List<String> images = [];
   List<String> videos = [];
-  String contentType = PostContentType.normal;
+  String contentType = PostContentType.quillJson;
 
   Map<String, dynamic> toJson() {
     return {

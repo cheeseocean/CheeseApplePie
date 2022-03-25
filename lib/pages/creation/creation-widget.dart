@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -24,7 +25,7 @@ class Gallery extends StatelessWidget {
     _videoKeys = List.filled(_items.length, null);
     _curIndex = _index;
     for (int i = 0; i < _items.length; i++) {
-      if (_items[i].file.type == AssetType.video) {
+      if (_items[i].type == AssetType.video) {
         _videoKeys[i] = GlobalKey();
       }
     }
@@ -39,9 +40,9 @@ class Gallery extends StatelessWidget {
             scrollPhysics: const BouncingScrollPhysics(),
             builder: (BuildContext context, int index) {
               FileInfo fileInfo = _items[index];
-              return fileInfo.file.type == AssetType.image
+              return fileInfo.type == AssetType.image
                   ? PhotoViewGalleryPageOptions(
-                      imageProvider: AssetEntityImageProvider(_items[index].file as AssetEntity, isOriginal: false),
+                      imageProvider: FileImage(File(_items[index].path)),
                       heroAttributes: PhotoViewHeroAttributes(tag: _items[index].path),
                     )
                   : PhotoViewGalleryPageOptions.customChild(
@@ -155,19 +156,18 @@ class _PhotoAndVideoListState extends State<PhotoAndVideoList> {
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: fileInfos.length,
-          gridDelegate:
-              SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisSpacing: 3.w, crossAxisSpacing: 3.w, childAspectRatio: 1),
+          gridDelegate: fileInfos.isNotEmpty
+              ? SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisSpacing: 3.w, crossAxisSpacing: 3.w, childAspectRatio: 1)
+              : const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 1),
           itemBuilder: (context, i) {
             FileInfo fileInfo = fileInfos[i];
-            Widget widget = fileInfo.file.type == AssetType.image
-                ? Image(
+            /*Image(
                     image: AssetEntityImageProvider(fileInfo.file as AssetEntity, isOriginal: false),
                     fit: BoxFit.cover,
-                  )
-                : SmallPlayer(
-                    fileInfo.path,
-                    key: ValueKey(fileInfo.path),
-                  );
+                  )*/
+            Widget widget = fileInfo.type == AssetType.image
+                ? Image.file(File(fileInfo.path), fit: BoxFit.cover)
+                : SmallPlayer(fileInfo.path, key: ValueKey(fileInfo.path));
             return Stack(alignment: Alignment.center, fit: StackFit.expand, children: [
               widget,
               Container(decoration: const BoxDecoration(color: Color(0x33000000))),

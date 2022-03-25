@@ -158,7 +158,7 @@ class _Register extends State<RegisterPage> {
                       if (responseModel.status != 0) {
                         return;
                       }
-                      Timer(const Duration(seconds: 1), () => Navigator.pushNamed(context, homePath));
+                      Timer(const Duration(seconds: 1), () => Navigator.pushNamed(context, RoutePath.personal));
                     },
                     child: const Text('注册')),
                 SizedBox(
