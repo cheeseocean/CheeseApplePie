@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_application/pages/creation/creation-model.dart';
 import 'package:flutter_application/pages/creation/creation-widget.dart';
+import 'package:flutter_application/widgets/quill.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -17,9 +18,6 @@ class PreviewPostPage extends StatelessWidget {
     print(previewData.data);
     print(previewData.richPaths);
     print(previewData.fileInfos);
-    if (previewData.contentType == PostContentType.normal) {
-      // previewData.paths
-    }
     _quillCtr = quill.QuillController(document: quill.Document.fromJson(previewData.data), selection: const TextSelection.collapsed(offset: 0));
     return Scaffold(
       appBar: AppBar(
@@ -28,10 +26,7 @@ class PreviewPostPage extends StatelessWidget {
       body: Container(
         child: Column(
           children: [
-            quill.QuillEditor.basic(
-              controller: _quillCtr,
-              readOnly: true,
-            ),
+            CustomQuillEditor(controller: _quillCtr, readOnly: true),
             SizedBox(height: 5.w),
             PhotoAndVideoList(previewData.fileInfos)
           ],

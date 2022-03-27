@@ -43,7 +43,7 @@ class LayoutPageState extends RoutePage<LayoutPage> {
               // Navigator.pushNamed(context, '/login');
               // return;
             }
-            NestedRouter.push(paths[index]);
+            NestedRouter.push(context, paths[index]);
           }),
       // appBar: AppBar(
       //   title: const Text('bar'),

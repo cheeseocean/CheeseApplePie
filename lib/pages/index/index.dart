@@ -1,12 +1,18 @@
+import 'dart:math';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application/common/utils.dart';
 import 'package:flutter_application/http/http.dart';
 import 'package:flutter_application/http/urls.dart';
+import 'package:flutter_application/pages/creation/creation.dart';
 import 'package:flutter_application/pages/index/index-model.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_quill/flutter_quill.dart' as quill;
 
+import '../../widgets/quill.dart';
 import '../../widgets/video.dart';
+import '../creation/creation-widget.dart';
 import 'index-params.dart';
 
 class IndexPage extends StatefulWidget {
@@ -18,7 +24,7 @@ class IndexPage extends StatefulWidget {
 
 class _IndexPageState extends State<IndexPage> {
   final ScrollController _scrollController = ScrollController();
-  final TextEditingController _inputCtr = TextEditingController(text: '');
+  // final TextEditingController _inputCtr = TextEditingController(text: '');
   List<Post> _items = [];
   int _totalCount = 0;
   final PostListParams _postListParams = PostListParams(pageSize: 4);
@@ -52,9 +58,9 @@ class _IndexPageState extends State<IndexPage> {
       }
     }));
     _getData();
-    _inputCtr.addListener(() {
-      print(_inputCtr.text);
-    });
+    // _inputCtr.addListener(() {
+    //   print(_inputCtr.text);
+    // });
   }
 
   @override
@@ -83,7 +89,7 @@ class _IndexPageState extends State<IndexPage> {
                   ),
                 );
               } else {
-                return Padding(padding: EdgeInsets.only(bottom: 10.w), child: Center(child: const Text('我是有底线的')));
+                return Padding(padding: EdgeInsets.only(bottom: 10.w), child: const Center(child: Text('我是有底线的')));
               }
             } else {
               return _Item(_items[index]);
@@ -133,7 +139,7 @@ class _Item extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '呢称',
+                    post.username,
                     style: TextStyle(fontSize: 15.sp),
                   ),
                   SizedBox(
@@ -150,10 +156,7 @@ class _Item extends StatelessWidget {
         ),
         Container(
           padding: EdgeInsets.all(8.w),
-          child: Text(
-            post.content,
-            style: TextStyle(fontSize: 14.sp),
-          ),
+          child: _Content(post.content),
           alignment: Alignment.bottomLeft,
         ),
         Container(
@@ -176,6 +179,40 @@ class _Item extends StatelessWidget {
               }),
         )
       ],
+    );
+  }
+}
+
+class _Content extends StatelessWidget {
+  final PostContent content;
+
+  _Content(this.content, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    List list = [];
+    const int maxLine = 5; // 最大显示行数
+    int i = 0;
+    for (var element in content.data) {
+      var insert = element['insert'];
+      if (insert is Map) continue;
+      List<String> contents = (insert as String).split('\n');
+      String temp = contents.sublist(0, min(contents.length, maxLine - i)).join('\n');
+      i = contents.length;
+      if (i > maxLine) {
+        element['insert'] = temp + '\n';
+        list.add(element);
+        break;
+      } else {
+        element['insert'] = temp;
+        list.add(element);
+      }
+    }
+    print(list);
+    return CustomQuillEditor(
+      controller: quill.QuillController(document: quill.Document.fromJson(list), selection: const TextSelection.collapsed(offset: 0)),
+      scrollable: false,
+      readOnly: true,
     );
   }
 }

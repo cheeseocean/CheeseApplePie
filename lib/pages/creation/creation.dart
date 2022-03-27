@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:ui';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_application/http/urls.dart';
 import 'package:flutter_application/models/model.dart';
 import 'package:flutter_application/pages/creation/creation-model.dart';
 import 'package:flutter_application/router/router.dart';
+import 'package:flutter_application/widgets/quill.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
@@ -22,11 +24,11 @@ class CreationPage extends StatefulWidget {
 }
 
 class _CreationPageState extends State<CreationPage> {
-  final TextEditingController _contentCtr = TextEditingController();
+  // final TextEditingController _contentCtr = TextEditingController();
   final _FormParams _formParams = _FormParams();
   List<FileInfo> _fileInfos = [];
 
-  final Map<String, AssetType> _fieldFileMap = Map();
+  final List<AssetType> _fileTypes = [];
   final quill.QuillController _quillCtr = quill.QuillController.basic();
 
   // final GlobalKey<TypeRadioState> _radioKey = GlobalKey();
@@ -34,7 +36,7 @@ class _CreationPageState extends State<CreationPage> {
   @override
   void initState() {
     super.initState();
-    _contentCtr.addListener(() => _formParams.content = _contentCtr.text);
+    // _contentCtr.addListener(() => _formParams.content = _contentCtr.text);
   }
 
   @override
@@ -60,30 +62,20 @@ class _CreationPageState extends State<CreationPage> {
                             quill.QuillToolbar.basic(
                               controller: _quillCtr,
                               onImagePickCallback: (file) {
-                                _fieldFileMap.putIfAbsent(file.path, () => AssetType.image);
+                                // _fileTypes.putIfAbsent(file.path, () => AssetType.image);
                                 // _quillFileInfo.add(QuillFileInfo(type: AssetType.image, path: file.path));
                                 return Future.value(file.path);
                               },
                               onVideoPickCallback: (file) {
-                                _fieldFileMap.putIfAbsent(file.path, () => AssetType.video);
+                                // _fileTypes.putIfAbsent(file.path, () => AssetType.video);
                                 // _quillFileInfo.add(QuillFileInfo(type: AssetType.video, path: file.path));
                                 return Future.value(file.path);
                               },
                             ),
                             Expanded(
                               child: Container(
-                                decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-                                child: quill.QuillEditor(
-                                  controller: _quillCtr,
-                                  scrollController: ScrollController(),
-                                  scrollable: true,
-                                  focusNode: FocusNode(),
-                                  autoFocus: true,
-                                  readOnly: false,
-                                  expands: false,
-                                  padding: const EdgeInsets.all(5),
-                                  keyboardAppearance: Brightness.light,
-                                ),
+                                decoration: BoxDecoration(border: Border.all(color: Colors.blue)),
+                                child: CustomQuillEditor(controller: _quillCtr,),
                               ),
                             ),
                           ],
@@ -95,14 +87,13 @@ class _CreationPageState extends State<CreationPage> {
                         List<AssetEntity>? files = await AssetPicker.pickAssets(context);
                         if (files == null) return;
                         _fileInfos = [];
-                        final width = (MediaQuery.of(context).size.width - 40) / 3;
-                        print(width);
+                        // final width = (MediaQuery.of(context).size.width - 40) / 3;
                         for (AssetEntity file in files) {
                           String path = (await file.file)!.path;
                           _fileInfos.add(FileInfo(type: file.type, path: path));
-                          _quillCtr.document.insert(_quillCtr.document.length - 1, quill.Embeddable.fromJson({'image': path}));
-                          _quillCtr.formatText(_quillCtr.document.length - 2, 1, quill.StyleAttribute('mobileWidth: $width; mobileHeight: $width; mobileMargin: 1; mobileAlignment: center;'));
-                          print(_quillCtr.document.toDelta().toJson());
+                          // _fileTypes.putIfAbsent(path, () => file.type);
+                          // _quillCtr.document.insert(_quillCtr.document.length - 1, quill.Embeddable.fromJson({'image': path}));
+                          // _quillCtr.formatText(_quillCtr.document.length - 2, 1, quill.StyleAttribute('mobileWidth: $width; mobileHeight: $width; mobileMargin: 1; mobileAlignment: centerLeft;'));
                         }
                         setState(() {});
                       },
@@ -155,7 +146,7 @@ class _CreationPageState extends State<CreationPage> {
     }
     // _formParams.contentType = _radioKey.currentState?.groupValue as String;
     List list = _quillCtr.document.toDelta().toList();
-    List<String> paths = [];
+    List<String> richPaths = [];
     // if (_formParams.contentType == PostContentType.normal) {
     //   // 自动布局
     //   bool res = list.every((element) {
@@ -168,7 +159,7 @@ class _CreationPageState extends State<CreationPage> {
     //     return null;
     //   }
     //   for (FileInfo fileInfo in _fileInfos) {
-    //     paths.add(fileInfo.path);
+    //     richPaths.add(fileInfo.path);
     //   }
     // } else {
     // 自定义布局
@@ -176,61 +167,102 @@ class _CreationPageState extends State<CreationPage> {
       var value = element.value;
       if (value is! Map) continue;
       if (value.containsKey('image')) {
-        paths.add(value['image']);
+        _fileTypes.add(AssetType.image);
+        richPaths.add(value['image']);
       } else if (value.containsKey('video')) {
-        paths.add(value['video']);
+        richPaths.add(value['video']);
+        _fileTypes.add(AssetType.video);
       }
     }
     // }
-    return paths;
+    return richPaths;
   }
 
   // 发布
   void _onSubmit() async {
-    List<String>? paths = await _formatContent();
-    if (paths == null) return;
+    _fileTypes.clear();
+    List<String>? richPaths = await _formatContent();
+    if (richPaths == null) return;
     _formParams.images = [];
     _formParams.videos = [];
-    if (paths.isNotEmpty) {
+    List list = _quillCtr.document.toDelta().toJson();
+    if (richPaths.isNotEmpty || _fileInfos.isNotEmpty) {
       // 如果有文件则上传
       List<MultipartFile> assets = [];
-      for (String path in paths) {
+      for (String path in richPaths) {
         assets.add(await MultipartFile.fromFile(path));
+      }
+      for (FileInfo fileInfo in _fileInfos) {
+        _fileTypes.add(fileInfo.type);
+        assets.add(await MultipartFile.fromFile(fileInfo.path));
       }
       FormData formData = FormData.fromMap({'assets': assets});
       Response res = await dio.post(uploadUrl, data: formData);
       UploadResModel uploadResModel = UploadResModel.fromJson(res.data);
       if (uploadResModel.status != 0) return showToast(uploadResModel.message);
-      int i = 0;
-      for (String path in uploadResModel.data) {
-        if (_fieldFileMap[path] == AssetType.image) {
-          _formParams.images.add('$path?i=${i++}');
+      for (int i = 0; i < uploadResModel.data.length; i++) {
+        if (_fileTypes[i] == AssetType.image) {
+          _formParams.images.add('${uploadResModel.data[i]}?i=$i');
         } else {
-          _formParams.videos.add('$path?i=${i++}');
+          _formParams.videos.add('${uploadResModel.data[i]}?i=$i');
         }
       }
+      int j = 0;
+      if (richPaths.isNotEmpty) {
+        for (var element in list) {
+          var insert = element['insert'];
+          if (insert is! Map) continue;
+          if (insert.containsKey('image')) {
+            insert['image'] = (j++).toString();
+          } else if (insert.containsKey('video')) {
+            insert['video'] = (j++).toString();
+          }
+        }
+      }
+      _formParams.content.data = list;
+      _formParams.content.assets = _fileInfos.map((_) => (j++).toString()).toList();
+    } else {
+      _formParams.content.data = _quillCtr.document.toDelta().toList();
+      // _formParams.content = _quillCtr.document.toDelta().toJson().toString();
     }
-    _fieldFileMap.clear();
-    _formParams.content = _quillCtr.document.toDelta().toJson().toString();
+    _fileTypes.clear();
     Response res2 = await dio.post(createPostUrl, data: _formParams);
     ResponseModel responseModel = ResponseModel.fromJson(res2.data);
     Fluttertoast.showToast(msg: responseModel.message);
-    if (responseModel.status == 0) Navigator.of(context).pushNamed(RoutePath.home, arguments: 1);
+    if (responseModel.status == 0) NestedRouter.push(context, RoutePath.personal);
   }
 }
 
 class _FormParams {
-  String content = '';
+  PostContent content = PostContent([], []);
   List<String> images = [];
   List<String> videos = [];
   String contentType = PostContentType.quillJson;
 
   Map<String, dynamic> toJson() {
     return {
-      "content": content,
+      "content": jsonEncode(content.toJson()),
       "contentType": contentType,
       "images": images,
       "videos": videos,
     };
+  }
+}
+
+class PostContent {
+  List data;
+  List<String> assets;
+
+  PostContent(this.data, this.assets);
+
+  factory PostContent.fromJson(Map<String, dynamic> json) {
+    return PostContent(
+      List.from(json["data"]),
+      List.from(json["assets"]),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {"data": data, "assets": assets};
   }
 }

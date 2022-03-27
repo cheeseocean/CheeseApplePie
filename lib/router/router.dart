@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_application/common/consts.dart';
 import 'package:flutter_application/layout.dart';
 import 'package:flutter_application/pages/community/community.dart';
 import 'package:flutter_application/pages/creation/creation.dart';
@@ -44,11 +47,12 @@ class NestedRouter {
     RoutePath.personal: const PersonalPage()
   };
 
-  static void push(String path, [Object? arguments]) {
+  static void push(BuildContext context, String path, [Object? arguments]) {
     List<String> paths = path.substring(1).split('/');
     assert(paths.length > 1);
     List pages = [];
     String pre = '/' + paths[0];
+    if (pre != ModalRoute.of(context)?.settings.name) Navigator.pushNamed(context, pre);
     List<GlobalKey<RoutePage>> keys = [routeKeys[pre]!];
     for (int i = 1; i < paths.length; i++) {
       String path = paths[i];

@@ -81,7 +81,8 @@ class _LoginPageState extends State<LoginPage> {
                       }
                       UserState userState = Provider.of(context, listen: false);
                       userState.login = true;
-                      Timer(const Duration(seconds: 1), () => Navigator.pushNamed(context, RoutePath.personal));
+                      Timer(const Duration(seconds: 1),
+                          () => Navigator.popUntil(context, (route) => ![RoutePath.register, RoutePath.login].contains(route.settings.name)));
                     } on DioError catch (e) {
                       print(e);
                     }
