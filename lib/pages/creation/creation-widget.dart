@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_application/pages/creation/creation-model.dart';
 import 'package:flutter_application/widgets/video.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,8 +9,6 @@ import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 import '../../common/consts.dart';
-import '../../common/utils.dart';
-import '../../http/http.dart';
 
 class Gallery extends StatelessWidget {
   final List<FileInfo> _items;
@@ -52,7 +48,7 @@ class Gallery extends StatelessWidget {
             },
             itemCount: _items.length,
             loadingBuilder: (context, event) => Center(
-              child: Container(
+              child: SizedBox(
                 width: 20.0,
                 height: 20.0,
                 child: CircularProgressIndicator(
@@ -138,71 +134,103 @@ class TypeRadioState extends State<TypeRadio> {
 
 class PhotoAndVideoList extends StatefulWidget {
   final List<FileInfo> fileInfos;
+  final bool adapt; // 是否根据图片数量调整列数
+  final bool readonly;
 
-  const PhotoAndVideoList(this.fileInfos, {Key? key}) : super(key: key);
+  const PhotoAndVideoList(this.fileInfos, {this.adapt = true, this.readonly = false, Key? key}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() => _PhotoAndVideoListState();
 }
 
 class _PhotoAndVideoListState extends State<PhotoAndVideoList> {
+  SliverGridDelegateWithFixedCrossAxisCount _gridControl(int length, bool adapt) {
+    if (!adapt) {
+      return widget.fileInfos.isNotEmpty
+          ? SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisSpacing: 3.w, crossAxisSpacing: 3.w, childAspectRatio: 1)
+          : const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 1);
+    }
+    int crossAxisCount = 1;
+    double mainAxisSpacing = 3.w;
+    double crossAxisSpacing = 3.w;
+    double childAspectRatio = 1;
+    if (length == 0) {
+      mainAxisSpacing = crossAxisSpacing = 0;
+    } else if (length == 1) {
+      childAspectRatio = 16 / 9;
+    } else if (length >= 2 && length <= 4) {
+      crossAxisCount = 2;
+    } else {
+      crossAxisCount = 3;
+    }
+    return SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount, mainAxisSpacing: mainAxisSpacing, crossAxisSpacing: crossAxisSpacing, childAspectRatio: childAspectRatio);
+  }
+
+  void _showGallery(BuildContext context, int i) {
+    Timer(const Duration(milliseconds: 10), () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => Gallery(widget.fileInfos, i))));
+  }
+
   @override
   Widget build(BuildContext context) {
     List<FileInfo> fileInfos = widget.fileInfos;
+    final bool readonly = widget.readonly;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 8.w),
       child: GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           itemCount: fileInfos.length,
-          gridDelegate: fileInfos.isNotEmpty
-              ? SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisSpacing: 3.w, crossAxisSpacing: 3.w, childAspectRatio: 1)
-              : const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 1),
+          gridDelegate: _gridControl(fileInfos.length, widget.adapt),
           itemBuilder: (context, i) {
             FileInfo fileInfo = fileInfos[i];
-            /*Image(
-                    image: AssetEntityImageProvider(fileInfo.file as AssetEntity, isOriginal: false),
-                    fit: BoxFit.cover,
-                  )*/
             Widget widget = fileInfo.type == AssetType.image
-                ? Image.file(File(fileInfo.path), fit: BoxFit.cover)
+                ? fileInfo.path.startsWith('http')
+                    ? Image.network(
+                        fileInfo.path,
+                        fit: BoxFit.cover,
+                      )
+                    : Image.file(File(fileInfo.path), fit: BoxFit.cover)
                 : SmallPlayer(fileInfo.path, key: ValueKey(fileInfo.path));
-            return Stack(alignment: Alignment.center, fit: StackFit.expand, children: [
-              widget,
-              Container(decoration: const BoxDecoration(color: Color(0x33000000))),
-              PopupMenuButton(
-                icon: const Icon(
-                  Icons.more_vert,
-                  color: Colors.white,
-                ),
-                itemBuilder: (BuildContext context) => [
-                  PopupMenuItem(
-                    height: 30.w,
-                    onTap: () {
-                      Clipboard.setData(ClipboardData(text: 'http://$host:$port${fileInfos[i].path}'));
-                      showToast('复制链接成功（该链接为临时地址）');
-                    },
-                    child: Text(
-                      '复制链接',
-                      style: TextStyle(color: XColor.primary),
+            return GestureDetector(
+              onTap: () {
+                if (readonly) _showGallery(context, i);
+              },
+              child: Stack(alignment: Alignment.center, fit: StackFit.expand, children: [
+                widget,
+                if (!readonly) Container(decoration: const BoxDecoration(color: Color(0x33000000))),
+                if (!readonly)
+                  PopupMenuButton(
+                    icon: const Icon(
+                      Icons.more_vert,
+                      color: Colors.white,
                     ),
+                    itemBuilder: (BuildContext context) => [
+                      // PopupMenuItem(
+                      //   height: 30.w,
+                      //   onTap: () {
+                      //     Clipboard.setData(ClipboardData(text: 'http://$host:$port${fileInfos[i].path}'));
+                      //     showToast('复制链接成功（该链接为临时地址）');
+                      //   },
+                      //   child: Text(
+                      //     '复制链接',
+                      //     style: TextStyle(color: XColor.primary),
+                      //   ),
+                      // ),
+                      PopupMenuItem(
+                        height: 30.w,
+                        onTap: () => _showGallery(context, i),
+                        child: Text('查看大图', style: TextStyle(color: XColor.primary)),
+                      ),
+                      PopupMenuItem(
+                        height: 30.w,
+                        onTap: () => setState(() => fileInfos.removeAt(i)),
+                        child: Text('删除图片', style: TextStyle(color: XColor.primary)),
+                      ),
+                    ],
                   ),
-                  PopupMenuItem(
-                    height: 30.w,
-                    onTap: () {
-                      Timer(const Duration(milliseconds: 10),
-                          () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => Gallery(fileInfos, i))));
-                    },
-                    child: Text('查看大图', style: TextStyle(color: XColor.primary)),
-                  ),
-                  PopupMenuItem(
-                    height: 30.w,
-                    onTap: () => setState(() => fileInfos.removeAt(i)),
-                    child: Text('删除图片', style: TextStyle(color: XColor.primary)),
-                  ),
-                ],
-              ),
-            ]);
+              ]),
+            );
           }),
     );
   }

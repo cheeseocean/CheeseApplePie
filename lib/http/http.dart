@@ -7,8 +7,8 @@ import 'package:flutter_application/http/cookie.dart';
 import 'package:flutter_application/models/model.dart';
 import 'package:flutter_application/router/router.dart';
 
-// const String host = '192.168.1.53';
-const String host = '192.168.84.19';
+const String host = '192.168.1.53';
+// const String host = '192.168.84.19';
 const String port = '5000';
 
 Dio dio = Dio(BaseOptions(receiveTimeout: 10000, baseUrl: 'http://localhost:5000/api'));

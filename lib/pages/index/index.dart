@@ -1,18 +1,23 @@
 import 'dart:math';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application/common/consts.dart';
 import 'package:flutter_application/common/utils.dart';
 import 'package:flutter_application/http/http.dart';
 import 'package:flutter_application/http/urls.dart';
+import 'package:flutter_application/models/model.dart';
 import 'package:flutter_application/pages/creation/creation.dart';
 import 'package:flutter_application/pages/index/index-model.dart';
+import 'package:flutter_application/widgets/icons.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:wechat_assets_picker/wechat_assets_picker.dart';
 
+import '../../router/router.dart';
 import '../../widgets/quill.dart';
+import '../../widgets/text-fields.dart';
 import '../../widgets/video.dart';
-import '../creation/creation-widget.dart';
+import '../creation/creation-model.dart';
 import 'index-params.dart';
 
 class IndexPage extends StatefulWidget {
@@ -24,21 +29,20 @@ class IndexPage extends StatefulWidget {
 
 class _IndexPageState extends State<IndexPage> {
   final ScrollController _scrollController = ScrollController();
-  // final TextEditingController _inputCtr = TextEditingController(text: '');
-  List<Post> _items = [];
+  List<SelectPostsResModel> _items = [];
   int _totalCount = 0;
   final PostListParams _postListParams = PostListParams(pageSize: 4);
 
   Future _getData([bool add = false]) async {
-    Response res = await dio.get(selectPostsUrl, queryParameters: _postListParams.toJson());
+    Response response = await dio.get(selectPostsUrl, queryParameters: _postListParams.toJson());
     setState(() {
-      SelectPostsResModel selectPostsResModel = SelectPostsResModel.fromJson(res.data);
+      ResponseModel<List<SelectPostsResModel>> res = ResponseModel.fromJson(response.data, toData: SelectPostsResModel.toData);
       if (add) {
-        _items.addAll(selectPostsResModel.data);
+        _items.addAll(res.data!);
       } else {
-        _items = selectPostsResModel.data;
+        _items = res.data!;
       }
-      _totalCount = selectPostsResModel.totalCount;
+      _totalCount = res.totalCount!;
     });
     return Future.value();
   }
@@ -58,9 +62,6 @@ class _IndexPageState extends State<IndexPage> {
       }
     }));
     _getData();
-    // _inputCtr.addListener(() {
-    //   print(_inputCtr.text);
-    // });
   }
 
   @override
@@ -110,9 +111,17 @@ class _IndexPageState extends State<IndexPage> {
 }
 
 class _Item extends StatelessWidget {
-  Post post;
+  final SelectPostsResModel post;
+  final GlobalKey<_IconButtonState> _btnKey = GlobalKey();
 
   _Item(this.post);
+
+  _onLike() async {
+    loading.autoOpen = false;
+    Response response = await dio.post(likePostUrl, data: {'postId': post.id});
+    ResponseModel<LikePostResModal> res = ResponseModel.fromJson(response.data, toData: LikePostResModal.toData);
+    if (res.status == 0) _btnKey.currentState!.update(res.data!.type == 1);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -156,7 +165,11 @@ class _Item extends StatelessWidget {
         ),
         Container(
           padding: EdgeInsets.all(8.w),
-          child: _Content(post.content),
+          child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => Navigator.of(context)
+                  .pushNamed(RoutePath.postDetail, arguments: PreviewData(post.content.data, post.content.assets, post.contentType, post.fileInfos)),
+              child: IgnorePointer(child: _Content(post.content))),
           alignment: Alignment.bottomLeft,
         ),
         Container(
@@ -166,18 +179,136 @@ class _Item extends StatelessWidget {
               shrinkWrap: true,
               padding: const EdgeInsets.all(0),
               physics: const NeverScrollableScrollPhysics(),
-              itemCount: post.imageList.length + post.videoList.length,
+              itemCount: post.fileInfos.length,
               gridDelegate:
                   SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisSpacing: 3.w, crossAxisSpacing: 3.w, childAspectRatio: 1),
               itemBuilder: (context, i) {
-                return i < post.imageList.length
+                FileInfo fileInfo = post.fileInfos[i];
+                return fileInfo.type == AssetType.image
                     ? Image.network(
-                        'http://$host:$port/${post.imageList[i]}',
+                        fileInfo.path,
                         fit: BoxFit.cover,
                       )
-                    : SmallPlayer('http://$host:$port/${post.videoList[i - post.imageList.length]}');
+                    : SmallPlayer(fileInfo.path);
               }),
+        ),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 15.w),
+          height: 40.w,
+          child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            _IconButton(
+              key: _btnKey,
+              icon: likeIcon,
+              text: post.likes.toString(),
+              onTap: _onLike,
+              active: post.liked == 1,
+            ),
+            _IconButton(
+              icon: commentIcon,
+              text: post.comments.toString(),
+              onTap: () {
+                showModalBottomSheet(builder: (BuildContext context) => buildBottomSheetWidget(context, post), context: context);
+              },
+            ),
+          ]),
         )
+      ],
+    );
+  }
+}
+
+Widget buildBottomSheetWidget(BuildContext context, SelectPostsResModel post) {
+  final TextEditingController _contentCtr = TextEditingController();
+  return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10.w),
+      child: Column(
+        children: [
+          SizedBox(
+            height: 10.w,
+          ),
+          Row(
+            children: [
+              Expanded(
+                  child: TextField(
+                controller: _contentCtr,
+                decoration: inputDecoration('', '说点啥吧'),
+              )),
+              SizedBox(
+                width: 5.w,
+              ),
+              ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      Response response = await dio.post(commentPostUrl, data: {'postId': post.id, 'parentId': null, 'content': _contentCtr.text});
+                      print(response.data);
+                    } catch (e) {
+                      print(e);
+                    }
+                  },
+                  child: const Text('发送'))
+            ],
+          ),
+          SizedBox(
+            height: 20.w,
+          )
+        ],
+      ));
+}
+
+class _IconButton extends StatefulWidget {
+  final IconData icon;
+  final String text;
+  final GestureTapCallback onTap;
+  final bool active;
+
+  const _IconButton({required this.icon, required this.text, required this.onTap, this.active = false, Key? key}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => _IconButtonState();
+}
+
+class _IconButtonState extends State<_IconButton> {
+  late int count;
+  late bool active;
+  late Color color;
+
+  @override
+  void initState() {
+    count = int.parse(widget.text);
+    active = widget.active;
+    setColor();
+    super.initState();
+  }
+
+  void setColor() {
+    setState(() => color = active ? XColor.primary : Colors.black);
+  }
+
+  void update(bool add) {
+    setState(() {
+      add ? count++ : count--;
+      active = add;
+      setColor();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        GestureDetector(
+          onTap: widget.onTap,
+          child: Icon(
+            widget.icon,
+            color: color,
+            size: 24.sp,
+          ),
+        ),
+        SizedBox(
+          width: 6.w,
+        ),
+        Text(count.toString(), style: TextStyle(fontSize: 16.sp))
       ],
     );
   }
@@ -186,7 +317,7 @@ class _Item extends StatelessWidget {
 class _Content extends StatelessWidget {
   final PostContent content;
 
-  _Content(this.content, {Key? key}) : super(key: key);
+  const _Content(this.content, {Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -208,7 +339,6 @@ class _Content extends StatelessWidget {
         list.add(element);
       }
     }
-    print(list);
     return CustomQuillEditor(
       controller: quill.QuillController(document: quill.Document.fromJson(list), selection: const TextSelection.collapsed(offset: 0)),
       scrollable: false,

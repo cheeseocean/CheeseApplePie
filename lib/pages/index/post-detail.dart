@@ -1,14 +1,12 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_application/pages/creation/creation-model.dart';
-import 'package:flutter_application/pages/creation/creation-widget.dart';
-import 'package:flutter_application/widgets/quill.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import '../../widgets/quill.dart';
+import '../creation/creation-model.dart';
+import '../creation/creation-widget.dart';
 
-class PreviewPostPage extends StatelessWidget {
-  PreviewPostPage({Key? key}) : super(key: key);
+class PostDetail extends StatelessWidget {
+  PostDetail({Key? key}) : super(key: key);
   late quill.QuillController _quillCtr;
 
   @override
@@ -18,7 +16,7 @@ class PreviewPostPage extends StatelessWidget {
     _quillCtr = quill.QuillController(document: quill.Document.fromJson(previewData.data), selection: const TextSelection.collapsed(offset: 0));
     return Scaffold(
       appBar: AppBar(
-        title: const Text('预览'),
+        title: const Text('详情'),
       ),
       body: Column(
         children: [

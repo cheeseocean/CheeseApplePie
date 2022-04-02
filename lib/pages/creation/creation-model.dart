@@ -1,13 +1,4 @@
-import 'package:flutter_application/models/model.dart';
 import 'package:wechat_assets_picker/wechat_assets_picker.dart';
-
-class UploadResModel extends ResponseModel {
-  late List<String> data;
-
-  UploadResModel.fromJson(Map<String, dynamic> json) : super.fromJson(json) {
-    data = List.from(json['data']);
-  }
-}
 
 class PostContentType {
   static const String quillJson = 'quill-json';

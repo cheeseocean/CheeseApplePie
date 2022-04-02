@@ -106,7 +106,7 @@ class _CreationPageState extends State<CreationPage> {
                     SizedBox(
                       height: 5.w,
                     ),
-                    PhotoAndVideoList(_fileInfos),
+                    PhotoAndVideoList(_fileInfos, adapt: false),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -198,13 +198,13 @@ class _CreationPageState extends State<CreationPage> {
       }
       FormData formData = FormData.fromMap({'assets': assets});
       Response res = await dio.post(uploadUrl, data: formData);
-      UploadResModel uploadResModel = UploadResModel.fromJson(res.data);
+      ResponseModel<List<String>> uploadResModel = ResponseModel.fromJson(res.data, toData: (data) => List<String>.from(data));
       if (uploadResModel.status != 0) return showToast(uploadResModel.message);
-      for (int i = 0; i < uploadResModel.data.length; i++) {
+      for (int i = 0; i < uploadResModel.data!.length; i++) {
         if (_fileTypes[i] == AssetType.image) {
-          _formParams.images.add('${uploadResModel.data[i]}?i=$i');
+          _formParams.images.add('${uploadResModel.data![i]}?i=$i');
         } else {
-          _formParams.videos.add('${uploadResModel.data[i]}?i=$i');
+          _formParams.videos.add('${uploadResModel.data![i]}?i=$i');
         }
       }
       int j = 0;
@@ -223,7 +223,6 @@ class _CreationPageState extends State<CreationPage> {
       _formParams.content.assets = _fileInfos.map((_) => (j++).toString()).toList();
     } else {
       _formParams.content.data = _quillCtr.document.toDelta().toList();
-      // _formParams.content = _quillCtr.document.toDelta().toJson().toString();
     }
     _fileTypes.clear();
     Response res2 = await dio.post(createPostUrl, data: _formParams);

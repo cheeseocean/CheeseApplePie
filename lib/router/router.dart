@@ -7,6 +7,7 @@ import 'package:flutter_application/pages/community/community.dart';
 import 'package:flutter_application/pages/creation/creation.dart';
 import 'package:flutter_application/pages/creation/preview-post.dart';
 import 'package:flutter_application/pages/index/index.dart';
+import 'package:flutter_application/pages/index/post-detail.dart';
 import 'package:flutter_application/pages/personal/personal.dart';
 import 'package:flutter_application/pages/videos/videos.dart';
 import '../pages/user/login/login.dart';
@@ -17,6 +18,7 @@ Map<String, Widget Function(BuildContext)> routes = {
   RoutePath.login: (context) => const LoginPage(),
   RoutePath.register: (context) => const RegisterPage(),
   RoutePath.previewPost: (context) => PreviewPostPage(),
+  RoutePath.postDetail: (context) => PostDetail(),
 };
 
 class RoutePath {
@@ -24,6 +26,7 @@ class RoutePath {
   static const login = '/login';
   static const register = '/register';
   static const previewPost = '/preview-post';
+  static const postDetail = '/post-detail';
 
   // nested route
   static const home = '/home';
